@@ -4,18 +4,29 @@ from .Agents import *
 from MAS_Microbiota import Simulation
 from MAS_Microbiota.AgentRestorer import restore_agent
 
-# Gut steps
+def agent_types():
+    return [
+            ('aep_enzyme.count', AEP, None),
+            ('tau_proteins.count', Protein, Simulation.params["protein_name"]["tau"]),
+            ('alpha_syn_proteins.count', Protein, Simulation.params["protein_name"]["alpha_syn"]),
+            ('external_input.count', ExternalInput, None),
+            ('treatment_input.count', Treatment, None),
+            ('alpha_syn_oligomers_gut.count', Oligomer, Simulation.params["protein_name"]["alpha_syn"]),
+            ('tau_oligomers_gut.count', Oligomer, Simulation.params["protein_name"]["tau"]),
+        ]
+
+
 # Function to move the cleaved protein agents
 def move_cleaved_protein_step():
-    for agent in Simulation.model.gut_context.agents():
+    for agent in Simulation.model.envs['gut']['context'].agents():
         if type(agent) == CleavedProtein:
             if agent.alreadyAggregate == False:
-                pt = Simulation.model.gut_grid.get_random_local_pt(Simulation.model.rng)
+                pt = Simulation.model.envs['gut']['grid'].get_random_local_pt(Simulation.model.rng)
                 Simulation.model.move(agent, pt, agent.context)
-    for agent in Simulation.model.brain_context.agents():
+    for agent in Simulation.model.envs['brain']['context'].agents():
         if type(agent) == CleavedProtein:
             if agent.alreadyAggregate == False:
-                pt = Simulation.model.brain_grid.get_random_local_pt(Simulation.model.rng)
+                pt = Simulation.model.envs['brain']['grid'].get_random_local_pt(Simulation.model.rng)
                 Simulation.model.move(agent, pt, agent.context)
 
 # Function to check if the microbiota is dysbiotic and adjust the barrier impermeability
@@ -28,7 +39,7 @@ def microbiota_dysbiosis_step():
             Simulation.model.barrier_impermeability = Simulation.model.barrier_impermeability - value_decreased
         number_of_aep_to_hyperactivate = value_decreased
         cont = 0
-        for agent in Simulation.model.gut_context.agents(agent_type=0):
+        for agent in Simulation.model.envs['gut']['context'].agents(agent_type=0):
             if agent.state == Simulation.params["aep_state"]["active"] and cont < number_of_aep_to_hyperactivate:
                 agent.state = Simulation.params["aep_state"]["hyperactive"]
                 cont += 1
@@ -40,30 +51,30 @@ def microbiota_dysbiosis_step():
             if (Simulation.model.barrier_impermeability + value_increased) <= Simulation.params["barrier_impermeability"]:
                 Simulation.model.barrier_impermeability = Simulation.model.barrier_impermeability + value_increased
 
-def gut_step():
-    Simulation.model.gut_context.synchronize(restore_agent)
+def step():
+    Simulation.model.envs['gut']['context'].synchronize(restore_agent)
 
     def gather_agents_to_remove():
-        return [agent for agent in Simulation.model.gut_context.agents() if
+        return [agent for agent in Simulation.model.envs['gut']['context'].agents() if
                 isinstance(agent, (Oligomer, CleavedProtein, Protein)) and agent.toRemove]
 
     remove_agents = gather_agents_to_remove()
     removed_ids = set()
     for agent in remove_agents:
-        if Simulation.model.gut_context.agent(agent.uid) is not None:
+        if Simulation.model.envs['gut']['context'].agent(agent.uid) is not None:
             Simulation.model.remove_agent(agent)
             removed_ids.add(agent.uid)
 
-    Simulation.model.gut_context.synchronize(restore_agent)
+    Simulation.model.envs['gut']['context'].synchronize(restore_agent)
 
-    for agent in Simulation.model.gut_context.agents():
+    for agent in Simulation.model.envs['gut']['context'].agents():
         agent.step()
 
     protein_to_remove = []
     all_true_cleaved_aggregates = []
     oligomers_to_move = []
 
-    for agent in Simulation.model.gut_context.agents():
+    for agent in Simulation.model.envs['gut']['context'].agents():
         if (type(agent) == Protein and agent.toCleave == True):
             protein_to_remove.append(agent)
             agent.toRemove = True
@@ -86,7 +97,7 @@ def gut_step():
         Simulation.model.gut_add_cleaved_protein(protein_name)
         Simulation.model.gut_add_cleaved_protein(protein_name)
 
-    Simulation.model.gut_context.synchronize(restore_agent)
+    Simulation.model.envs['gut']['context'].synchronize(restore_agent)
 
     for agent in all_true_cleaved_aggregates:
         if agent.uid in removed_ids:
@@ -97,7 +108,7 @@ def gut_step():
             for x in agent_nghs_cleaved:
                 if x.alreadyAggregate and x.uid != agent.uid:
                     if cont < 3:
-                        if Simulation.model.gut_context.agent(x.uid) is not None:
+                        if Simulation.model.envs['gut']['context'].agent(x.uid) is not None:
                             Simulation.model.remove_agent(x)
                             removed_ids.add(x.uid)
                         cont += 1
@@ -109,11 +120,11 @@ def gut_step():
             Simulation.model.remove_agent(agent)
             removed_ids.add(agent.uid)
 
-    Simulation.model.gut_context.synchronize(restore_agent)
+    Simulation.model.envs['gut']['context'].synchronize(restore_agent)
 
     remove_agents = gather_agents_to_remove()
     for agent in remove_agents:
         if agent.uid not in removed_ids:
-            if Simulation.model.gut_context.agent(agent.uid) is not None:
+            if Simulation.model.envs['gut']['context'].agent(agent.uid) is not None:
                 Simulation.model.remove_agent(agent)
                 removed_ids.add(agent.uid)

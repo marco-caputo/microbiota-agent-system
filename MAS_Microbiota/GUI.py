@@ -1,28 +1,58 @@
+from typing import Callable
+
 import pygame
 from .Utils import Simulation
 from MAS_Microbiota.Environments.Brain.Agents import *
 from MAS_Microbiota.Environments.Gut.Agents import *
 
 class GUI:
-    def __init__(self, width, height, gut_context, brain_context):
+    def __init__(self, width, height, envs):
         self.background_color = (202, 187, 185)
         self.border_color = (255, 255, 255)
         self.width = width
         self.height = height
+        self.envs = envs
         self.screen = pygame.display.set_mode((self.width, self.height))
         self.font = pygame.font.Font(None, 36)
         self.running = True
-        self.gut_context = gut_context
-        self.brain_context = brain_context
+        self.gut_context = envs['gut']['context']
+        self.brain_context = envs['brain']['context']
         self.grid_width, self.grid_height = Simulation.params['world.width'], Simulation.params['world.height']
         self.paused = False
         self.button_rects = []
         self.params = Simulation.params
 
+    # Function to update the interface
+    def pygame_update(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                # If the 'X' button is clicked, stop the simulation
+                print("Ending the simulation.")
+                Simulation.model.at_end()
+                Simulation.model.comm.Abort()
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.handle_button_click(event.pos)
+
+        while self.paused:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    # If the 'X' button is clicked, stop the simulation
+                    print("Ending the simulation.")
+                    Simulation.model.at_end()
+                    Simulation.model.comm.Abort()
+
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    self.handle_button_click(event.pos)
+
+        # Updates the Pygame GUI based on the current state of the Repast simulation
+        self.update()
+        pygame.display.flip()
+
     # Function to update the screen after each tick
-    def update(self, gut_context, brain_context):
+    def update(self):
         # Update contexts
-        self.gut_context, self.brain_context = gut_context, brain_context
+        self.gut_context, self.brain_context = self.envs['gut']['context'], self.envs['brain']['context']
 
         # Fill background and draw border rectangle
         self.screen.fill(self.background_color)

@@ -47,7 +47,7 @@ class Cytokine(core.Agent):
         nghs_coords = Simulation.model.ngh_finder.find(self.pt.x, self.pt.y)
         microglie = []
         for ngh_coords in nghs_coords:
-            nghs_array = Simulation.model.brain_grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
+            nghs_array = Simulation.model.envs['brain']['grid'].get_agents(dpt(ngh_coords[0], ngh_coords[1]))
             for ngh in nghs_array:
                 if (type(ngh) == Microglia):
                     microglie.append(ngh)

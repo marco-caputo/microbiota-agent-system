@@ -38,9 +38,9 @@ class CleavedProtein(core.Agent):
         nghs_coords = Simulation.model.ngh_finder.find(self.pt.x, self.pt.y)
         for ngh_coords in nghs_coords:
             if self.context == 'brain':
-                nghs_array = Simulation.model.brain_grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
+                nghs_array = Simulation.model.envs['brain']['grid'].get_agents(dpt(ngh_coords[0], ngh_coords[1]))
             else:
-                nghs_array = Simulation.model.gut_grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
+                nghs_array = Simulation.model.envs['gut']['grid'].get_agents(dpt(ngh_coords[0], ngh_coords[1]))
             for ngh in nghs_array:
                 if ngh is not None:
                     ngh.alreadyAggregate = False
@@ -66,9 +66,9 @@ class CleavedProtein(core.Agent):
         cleavedProteins = []
         for ngh_coords in nghs_coords:
             if self.context == 'brain':
-                ngh_array = Simulation.model.brain_grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
+                ngh_array = Simulation.model.envs['brain']['grid'].get_agents(dpt(ngh_coords[0], ngh_coords[1]))
             else:
-                ngh_array = Simulation.model.gut_grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
+                ngh_array = Simulation.model.envs['gut']['grid'].get_agents(dpt(ngh_coords[0], ngh_coords[1]))
             for ngh in ngh_array:
                 if (type(ngh) == CleavedProtein and self.name == ngh.name):
                     cleavedProteins.append(ngh)

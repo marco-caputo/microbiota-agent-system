@@ -29,7 +29,7 @@ class Microglia(core.Agent):
     # returns the oligomer agent in the neighborhood of the agent     
     def check_oligomer_nghs(self, nghs_coords):
         for ngh_coord in nghs_coords:
-            ngh_array = Simulation.model.brain_grid.get_agents(dpt(ngh_coord[0], ngh_coord[1]))
+            ngh_array = Simulation.model.envs['brain']['grid'].get_agents(dpt(ngh_coord[0], ngh_coord[1]))
             for ngh in ngh_array:
                 if (type(ngh) == Oligomer):
                     return ngh

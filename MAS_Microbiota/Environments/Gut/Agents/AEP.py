@@ -42,7 +42,7 @@ class AEP(core.Agent):
     # returns the protein agent in the neighborhood of the agent
     def percepts(self, nghs_coords):
         for ngh_coords in nghs_coords:
-            nghs_array = Simulation.model.gut_grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
+            nghs_array = Simulation.model.envs['gut']['grid'].get_agents(dpt(ngh_coords[0], ngh_coords[1]))
             for ngh in nghs_array:
                 if type(ngh) == Protein:
                     return ngh
