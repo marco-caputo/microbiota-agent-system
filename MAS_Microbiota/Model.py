@@ -4,9 +4,15 @@ from repast4py import context as ctx
 from repast4py import space, schedule, logging, random
 from repast4py.space import DiscretePoint as dpt
 
-from MAS_Microbiota import Simulation, Log, GUI, GridNghFinder
-from MAS_Microbiota.Environments import *
+from MAS_Microbiota.GUI import GUI
+from MAS_Microbiota.Utils import *
+from MAS_Microbiota.Log import Log
+from MAS_Microbiota.Environments.GutBrainInterface import GutBrainInterface
+from MAS_Microbiota.Environments.Gut.Agents import *
+from MAS_Microbiota.Environments.Brain.Agents import *
 from MAS_Microbiota.AgentRestorer import restore_agent
+from MAS_Microbiota.Environments.Gut.Gut import gut_step, microbiota_dysbiosis_step, move_cleaved_protein_step
+from MAS_Microbiota.Environments.Brain.Brain import brain_step
 
 
 class Model():

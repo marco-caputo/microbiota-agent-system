@@ -3,7 +3,7 @@ from repast4py import core
 from repast4py.space import DiscretePoint as dpt
 
 from MAS_Microbiota import Simulation
-from MAS_Microbiota.Environments import Oligomer
+from MAS_Microbiota.Environments.Gut.Agents import Oligomer
 class Microglia(core.Agent):
     TYPE = 6
 

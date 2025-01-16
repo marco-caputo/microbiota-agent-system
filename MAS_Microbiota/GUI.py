@@ -1,6 +1,7 @@
 import pygame
 from .Utils import Simulation
-from .Environments import *
+from MAS_Microbiota.Environments.Brain.Agents import *
+from MAS_Microbiota.Environments.Gut.Agents import *
 
 class GUI:
     def __init__(self, width, height, gut_context, brain_context):
