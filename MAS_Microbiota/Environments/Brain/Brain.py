@@ -1,5 +1,8 @@
-from Agents import *
+import numpy as np
+
+from .Agents import *
 from MAS_Microbiota.Environments.Gut.Agents import *
+from MAS_Microbiota.AgentRestorer import restore_agent
 from MAS_Microbiota import Simulation
 
 # Brain steps
@@ -16,7 +19,7 @@ def brain_add_cleaved_protein(self):
 
 # Brain steps
 def brain_step(self):
-    self.brain_context.synchronize(restore_agent_brain)
+    self.brain_context.synchronize(restore_agent)
 
     def gather_agents_to_remove():
         return [agent for agent in self.brain_context.agents() if
@@ -30,7 +33,7 @@ def brain_step(self):
             self.remove_agent(agent)
             removed_ids.add(agent.uid)
 
-    self.brain_context.synchronize(restore_agent_brain)
+    self.brain_context.synchronize(restore_agent)
 
     # Let each agent perform its step
     for agent in self.brain_context.agents():
@@ -62,7 +65,7 @@ def brain_step(self):
             self.remove_agent(oligomer)
             removed_ids.add(oligomer.uid)
 
-    self.brain_context.synchronize(restore_agent_brain)
+    self.brain_context.synchronize(restore_agent)
 
     for agent in all_true_cleaved_aggregates:
         if agent.uid in removed_ids:
@@ -85,7 +88,7 @@ def brain_step(self):
             self.remove_agent(agent)
             removed_ids.add(agent.uid)
 
-    self.brain_context.synchronize(restore_agent_brain)
+    self.brain_context.synchronize(restore_agent)
 
     # Remove agents marked for removal after all processing
     remove_agents = gather_agents_to_remove()

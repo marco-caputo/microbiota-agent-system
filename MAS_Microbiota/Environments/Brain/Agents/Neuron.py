@@ -1,6 +1,7 @@
 from typing import Tuple
 from repast4py import core
 from repast4py.space import DiscretePoint as dpt
+import numpy as np
 
 from MAS_Microbiota import Simulation
 

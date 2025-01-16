@@ -1,5 +1,8 @@
-from Agents import *
+import numpy as np
+
+from .Agents import *
 from MAS_Microbiota import Simulation
+from MAS_Microbiota.AgentRestorer import restore_agent
 
 # Gut steps
 # Function to move the cleaved protein agents
@@ -38,7 +41,7 @@ def microbiota_dysbiosis_step(self):
                 self.barrier_impermeability = self.barrier_impermeability + value_increased
 
 def gut_step(self):
-    self.gut_context.synchronize(restore_agent_gut)
+    self.gut_context.synchronize(restore_agent)
 
     def gather_agents_to_remove():
         return [agent for agent in self.gut_context.agents() if
@@ -51,7 +54,7 @@ def gut_step(self):
             self.remove_agent(agent)
             removed_ids.add(agent.uid)
 
-    self.gut_context.synchronize(restore_agent_gut)
+    self.gut_context.synchronize(restore_agent)
 
     for agent in self.gut_context.agents():
         agent.step()
@@ -83,7 +86,7 @@ def gut_step(self):
         self.gut_add_cleaved_protein(protein_name)
         self.gut_add_cleaved_protein(protein_name)
 
-    self.gut_context.synchronize(restore_agent_gut)
+    self.gut_context.synchronize(restore_agent)
 
     for agent in all_true_cleaved_aggregates:
         if agent.uid in removed_ids:
@@ -106,7 +109,7 @@ def gut_step(self):
             self.remove_agent(agent)
             removed_ids.add(agent.uid)
 
-    self.gut_context.synchronize(restore_agent_gut)
+    self.gut_context.synchronize(restore_agent)
 
     remove_agents = gather_agents_to_remove()
     for agent in remove_agents:

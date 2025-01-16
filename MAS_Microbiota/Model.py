@@ -4,8 +4,9 @@ from repast4py import context as ctx
 from repast4py import space, schedule, logging, random
 from repast4py.space import DiscretePoint as dpt
 
-from MAS_Microbiota import *
+from MAS_Microbiota import Simulation, Log, GUI, GridNghFinder
 from MAS_Microbiota.Environments import *
+from MAS_Microbiota.AgentRestorer import restore_agent
 
 
 class Model():
@@ -83,10 +84,10 @@ class Model():
 
     # Function to initialize the schedule
     def init_schedule(self):
-        self.runner.schedule_repeating_event(1, 1, self.gut_step)
-        self.runner.schedule_repeating_event(1, 2, self.microbiota_dysbiosis_step)
-        self.runner.schedule_repeating_event(1, 5, self.move_cleaved_protein_step)
-        self.runner.schedule_repeating_event(1, 1, self.brain_step, priority_type=0)
+        self.runner.schedule_repeating_event(1, 1, gut_step)
+        self.runner.schedule_repeating_event(1, 2, microbiota_dysbiosis_step)
+        self.runner.schedule_repeating_event(1, 5, move_cleaved_protein_step)
+        self.runner.schedule_repeating_event(1, 1, brain_step, priority_type=0)
         self.runner.schedule_repeating_event(1, 1, self.pygame_update, priority_type=1)
         self.runner.schedule_repeating_event(1, 1, self.log_counts, priority_type=1)
         self.runner.schedule_stop(Simulation.params['stop.at'])

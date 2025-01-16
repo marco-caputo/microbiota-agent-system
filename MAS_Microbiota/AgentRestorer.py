@@ -1,7 +1,8 @@
 from typing import Tuple
 from repast4py.space import DiscretePoint as dpt
 
-from MAS_Microbiota.Environments import *
+from MAS_Microbiota.Environments.Brain.Agents import *
+from MAS_Microbiota.Environments.Gut.Agents import *
 
 agent_cache = {}
 
