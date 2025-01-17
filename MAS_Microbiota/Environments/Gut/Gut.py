@@ -15,20 +15,6 @@ def agent_types():
             ('tau_oligomers_gut.count', Oligomer, Simulation.params["protein_name"]["tau"]),
         ]
 
-
-# Function to move the cleaved protein agents
-def move_cleaved_protein_step():
-    for agent in Simulation.model.envs['gut']['context'].agents():
-        if type(agent) == CleavedProtein:
-            if agent.alreadyAggregate == False:
-                pt = Simulation.model.envs['gut']['grid'].get_random_local_pt(Simulation.model.rng)
-                Simulation.model.move(agent, pt, agent.context)
-    for agent in Simulation.model.envs['brain']['context'].agents():
-        if type(agent) == CleavedProtein:
-            if agent.alreadyAggregate == False:
-                pt = Simulation.model.envs['brain']['grid'].get_random_local_pt(Simulation.model.rng)
-                Simulation.model.move(agent, pt, agent.context)
-
 # Function to check if the microbiota is dysbiotic and adjust the barrier impermeability
 def microbiota_dysbiosis_step():
     if Simulation.model.microbiota_good_bacteria_class - Simulation.model.microbiota_pathogenic_bacteria_class <= Simulation.model.microbiota_diversity_threshold:
@@ -39,7 +25,7 @@ def microbiota_dysbiosis_step():
             Simulation.model.barrier_impermeability = Simulation.model.barrier_impermeability - value_decreased
         number_of_aep_to_hyperactivate = value_decreased
         cont = 0
-        for agent in Simulation.model.envs['gut']['context'].agents(agent_type=0):
+        for agent in Simulation.model.envs['gut']['context'].agents(agent_type=AEP.TYPE):
             if agent.state == Simulation.params["aep_state"]["active"] and cont < number_of_aep_to_hyperactivate:
                 agent.state = Simulation.params["aep_state"]["hyperactive"]
                 cont += 1

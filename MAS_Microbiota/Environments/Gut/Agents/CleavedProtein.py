@@ -22,7 +22,7 @@ class CleavedProtein(core.Agent):
         self.uid, self.name, self.pt.coordinates, self.toAggregate, self.alreadyAggregate, self.toRemove, self.context)
 
     def step(self):
-        if self.alreadyAggregate == True or self.toAggregate == True or self.pt is None:
+        if self.alreadyAggregate or self.toAggregate or self.pt is None:
             pass
         else:
             cleaved_nghs_number, _, nghs_coords = self.check_and_get_nghs()
@@ -57,7 +57,7 @@ class CleavedProtein(core.Agent):
             return False
 
     def change_state(self):
-        if self.toAggregate == False:
+        if not self.toAggregate:
             self.toAggregate = True
 
     def check_and_get_nghs(self):

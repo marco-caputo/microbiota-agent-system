@@ -9,7 +9,7 @@ from repast4py.space import DiscretePoint as dpt
 from MAS_Microbiota.GUI import GUI
 from MAS_Microbiota.Utils import *
 from MAS_Microbiota.Log import Log
-from MAS_Microbiota.Environments.GutBrainInterface import GutBrainInterface
+from MAS_Microbiota.Environments.BloodStreamInterface import BloodStreamInterface
 from MAS_Microbiota.Environments.Gut.Agents import *
 from MAS_Microbiota.Environments.Brain.Agents import *
 from MAS_Microbiota.AgentRestorer import restore_agent
@@ -59,7 +59,7 @@ class Model():
             self.envs[env]["grid"] = self.init_grid(env+'_grid', box, self.envs[env]["context"])
 
         self.ngh_finder = GridNghFinder(0, 0, box.xextent, box.yextent)
-        self.gutBrainInterface = GutBrainInterface(self.envs["gut"]["context"], self.envs["brain"]["context"])
+        self.gutBrainInterface = BloodStreamInterface(self.envs["gut"]["context"], self.envs["brain"]["context"])
 
 
     def init_grid(self, name, box, context):
@@ -93,7 +93,7 @@ class Model():
         self.runner = schedule.init_schedule_runner(comm)
         self.runner.schedule_repeating_event(1, 1, Gut.step)
         self.runner.schedule_repeating_event(1, 2, Gut.microbiota_dysbiosis_step)
-        self.runner.schedule_repeating_event(1, 5, Gut.move_cleaved_protein_step)
+        self.runner.schedule_repeating_event(1, 5, self.teleport_resources_step)
         self.runner.schedule_repeating_event(1, 1, Brain.step, priority_type=0)
         self.runner.schedule_repeating_event(1, 1, self.screen.pygame_update, priority_type=1)
         self.runner.schedule_repeating_event(1, 1, self.counts.log_counts, priority_type=1)
@@ -182,6 +182,18 @@ class Model():
         cleaved_protein = CleavedProtein(self.added_agents_id, self.rank, cleaved_protein_name, pt, 'gut')
         self.envs['gut']['context'].add(cleaved_protein)
         self.move(cleaved_protein, cleaved_protein.pt, 'gut')
+
+
+    # Function to move the cleaved protein agents
+    def teleport_resources_step(self):
+        self.teleport_cleaved_protein_step()
+        #TODO: Microbiota.teleport_resources_step() -> Teletrasportare substrati
+    def teleport_cleaved_protein_step(self):
+        for env in ['gut', 'brain']:
+            for agent in Simulation.model.envs[env]['context'].agents():
+                if type(agent) == CleavedProtein and not agent.alreadyAggregate:
+                    pt = Simulation.model.envs[env]['grid'].get_random_local_pt(Simulation.model.rng)
+                    Simulation.model.move(agent, pt, agent.context)
 
 
     # Function to add an oligomer protein agent to the brain or gut context
