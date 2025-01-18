@@ -1,12 +1,13 @@
 from typing import Tuple
-from repast4py import core
 from repast4py.space import DiscretePoint as dpt
 import numpy as np
 from MAS_Microbiota import Simulation
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+
+from MAS_Microbiota.Environments import GridAgent
 
 
-class ResourceAgent(ABC, core.Agent):
+class ResourceAgent(GridAgent):
     """
     Abstract class for the agents that represent resources in the environment.
     Resources are agents that can be consumed by other agents. They can be proteins, nutrients, etc.
@@ -15,9 +16,7 @@ class ResourceAgent(ABC, core.Agent):
     """
 
     def __init__(self, local_id: int, type: int, rank: int, pt: dpt, context):
-        super().__init__(id=local_id, type=type, rank=rank)
-        self.pt = pt
-        self.context = context
+        super().__init__(local_id=local_id, type=type, rank=rank, pt=pt, context=context)
         self.toRemove = False
 
     @abstractmethod

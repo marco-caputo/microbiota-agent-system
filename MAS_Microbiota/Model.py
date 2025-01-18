@@ -13,8 +13,8 @@ from MAS_Microbiota.Environments.BloodStreamInterface import BloodStreamInterfac
 from MAS_Microbiota.Environments.Gut.Agents import *
 from MAS_Microbiota.Environments.Brain.Agents import *
 from MAS_Microbiota.AgentRestorer import restore_agent
-from MAS_Microbiota.Environments.Gut import Gut
-from MAS_Microbiota.Environments.Brain import Brain
+from MAS_Microbiota.Environments.Gut.Gut import Gut
+from MAS_Microbiota.Environments.Brain.Brain import Brain
 
 
 class Model():
@@ -40,26 +40,27 @@ class Model():
         self.distribute_all_agents(Brain.agent_types(), 'brain')
 
         # Synchronize the contexts
-        for env in self.envs: self.envs[env]["context"].synchronize(restore_agent)
+        for _, env in self.envs.items(): env.context.synchronize(restore_agent)
 
     def init_environments(self, comm: MPI.Intracomm):
         """
         Initializes the environments for the model, setting up their shared contexts and grids.
         :param comm: MPI communicator
         """
-        # Initialization of environment dictionary for contexts and grids
-        self.envs = {"microbiota": dict(), "gut": dict(), "brain": dict()}
+        # Initialization of environment dictionary
+        self.envs = dict()
 
         # Create box grid for the environments
         box = space.BoundingBox(0, Simulation.params['world.width'] - 1, 0, Simulation.params['world.height'] - 1, 0, 0)
 
         # Create shared contexts and grid for the environments
-        for env in self.envs:
-            self.envs[env]["context"] = ctx.SharedContext(comm)
-            self.envs[env]["grid"] = self.init_grid(env+'_grid', box, self.envs[env]["context"])
+        for Env in [Gut, Brain]:
+            context = ctx.SharedContext(comm)
+            grid = self.init_grid(Env.NAME+'_grid', box, context)
+            self.envs[Env.NAME] = Env(context, grid)
 
         self.ngh_finder = GridNghFinder(0, 0, box.xextent, box.yextent)
-        self.gutBrainInterface = BloodStreamInterface(self.envs["gut"]["context"], self.envs["brain"]["context"])
+        self.gutBrainInterface = BloodStreamInterface(self.envs[Gut.NAME].context, self.envs[Brain.NAME].context)
 
 
     def init_grid(self, name, box, context):
@@ -91,10 +92,10 @@ class Model():
         The schedule represents the order in which the model's events are executed in each tick of the simulation.
         """
         self.runner = schedule.init_schedule_runner(comm)
-        self.runner.schedule_repeating_event(1, 1, Gut.step)
-        self.runner.schedule_repeating_event(1, 2, Gut.microbiota_dysbiosis_step)
+        self.runner.schedule_repeating_event(1, 1, self.envs[Gut.NAME].step)
+        self.runner.schedule_repeating_event(1, 2, self.envs[Gut.NAME].microbiota_dysbiosis_step)
         self.runner.schedule_repeating_event(1, 5, self.teleport_resources_step)
-        self.runner.schedule_repeating_event(1, 1, Brain.step, priority_type=0)
+        self.runner.schedule_repeating_event(1, 1, self.envs[Brain.NAME].step, priority_type=0)
         self.runner.schedule_repeating_event(1, 1, self.screen.pygame_update, priority_type=1)
         self.runner.schedule_repeating_event(1, 1, self.counts.log_counts, priority_type=1)
         self.runner.schedule_stop(Simulation.params['stop.at'])
@@ -147,18 +148,18 @@ class Model():
             self.create_agents(agent_type[1], pp_count, agent_type[2], env)
 
     # Function to create agents in the different ranks based on the total count
-    def create_agents(self, agent_class, pp_count, state_key, env):
+    def create_agents(self, agent_class, pp_count, state_key, env_name):
         for j in range(pp_count):
-            pt = self.envs[env]['grid'].get_random_local_pt(self.rng)
+            pt = self.envs[env_name].grid.get_random_local_pt(self.rng)
             if agent_class in [Neuron, Microglia]:
                 agent = agent_class(self.added_agents_id + j, self.rank,
-                                    Simulation.params[f"{agent_class.__name__.lower()}_state"][state_key], pt, env)
+                                    Simulation.params[f"{agent_class.__name__.lower()}_state"][state_key], pt, env_name)
             elif agent_class in [CleavedProtein, Oligomer, Protein]:
-                agent = agent_class(self.added_agents_id + j, self.rank, Simulation.params["protein_name"][state_key], pt, env)
+                agent = agent_class(self.added_agents_id + j, self.rank, Simulation.params["protein_name"][state_key], pt, env_name)
             else:
                 # For agents without special state keys
-                agent = agent_class(self.added_agents_id + j, self.rank, pt, env)
-            self.envs[env]['context'].add(agent)
+                agent = agent_class(self.added_agents_id + j, self.rank, pt, env_name)
+            self.envs[env_name].context.add(agent)
             self.move(agent, pt, agent.context)
         self.added_agents_id += pp_count
 
@@ -172,15 +173,15 @@ class Model():
 
     # Function to remove an agent from the context and the grid
     def remove_agent(self, agent):
-        self.envs[agent.context]['context'].remove(agent)
+        self.envs[agent.context].context.remove(agent)
 
 
     # Function to add a cleaved protein agent to the gut context
     def gut_add_cleaved_protein(self, cleaved_protein_name):
         self.added_agents_id += 1
-        pt = self.envs['gut']['grid'].get_random_local_pt(self.rng)
+        pt = self.envs[Gut.NAME].grid.get_random_local_pt(self.rng)
         cleaved_protein = CleavedProtein(self.added_agents_id, self.rank, cleaved_protein_name, pt, 'gut')
-        self.envs['gut']['context'].add(cleaved_protein)
+        self.envs[Gut.NAME].context.add(cleaved_protein)
         self.move(cleaved_protein, cleaved_protein.pt, 'gut')
 
 
@@ -189,25 +190,25 @@ class Model():
         self.teleport_cleaved_protein_step()
         #TODO: Microbiota.teleport_resources_step() -> Teletrasportare substrati
     def teleport_cleaved_protein_step(self):
-        for env in ['gut', 'brain']:
-            for agent in Simulation.model.envs[env]['context'].agents():
+        for env_name in [Gut.NAME, Brain.NAME]:
+            for agent in Simulation.model.envs[env_name].context.agents():
                 if type(agent) == CleavedProtein and not agent.alreadyAggregate:
-                    pt = Simulation.model.envs[env]['grid'].get_random_local_pt(Simulation.model.rng)
+                    pt = Simulation.model.envs[env_name].grid.get_random_local_pt(Simulation.model.rng)
                     Simulation.model.move(agent, pt, agent.context)
 
 
     # Function to add an oligomer protein agent to the brain or gut context
-    def add_oligomer_protein(self, oligomer_name, env):
+    def add_oligomer_protein(self, oligomer_name, env_name):
         self.added_agents_id += 1
-        pt = self.envs[env]['grid'].get_random_local_pt(self.rng)
-        oligomer_protein = Oligomer(self.added_agents_id, self.rank, oligomer_name, pt, env)
-        self.envs[env]['context'].add(oligomer_protein)
-        self.move(oligomer_protein, oligomer_protein.pt, env)
+        pt = self.envs[env_name].grid.get_random_local_pt(self.rng)
+        oligomer_protein = Oligomer(self.added_agents_id, self.rank, oligomer_name, pt, env_name)
+        self.envs[env_name].context.add(oligomer_protein)
+        self.move(oligomer_protein, oligomer_protein.pt, env_name)
 
 
     # Function to move an agent to a new location
-    def move(self, agent, pt: dpt, env):
-        self.envs[env]['grid'].move(agent, pt)
+    def move(self, agent, pt: dpt, env_name):
+        self.envs[env_name].grid.move(agent, pt)
         agent.pt = pt
 
 

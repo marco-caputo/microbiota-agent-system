@@ -1,6 +1,9 @@
 from typing import Callable
 
 import pygame
+
+from .Environments.Brain.Brain import Brain
+from .Environments.Gut.Gut import Gut
 from .Utils import Simulation
 from MAS_Microbiota.Environments.Brain.Agents import *
 from MAS_Microbiota.Environments.Gut.Agents import *
@@ -15,8 +18,8 @@ class GUI:
         self.screen = pygame.display.set_mode((self.width, self.height))
         self.font = pygame.font.Font(None, 36)
         self.running = True
-        self.gut_context = envs['gut']['context']
-        self.brain_context = envs['brain']['context']
+        self.gut_context = envs[Gut.NAME].context
+        self.brain_context = envs[Brain.NAME].context
         self.grid_width, self.grid_height = Simulation.params['world.width'], Simulation.params['world.height']
         self.paused = False
         self.button_rects = []
@@ -52,7 +55,7 @@ class GUI:
     # Function to update the screen after each tick
     def update(self):
         # Update contexts
-        self.gut_context, self.brain_context = self.envs['gut']['context'], self.envs['brain']['context']
+        self.gut_context, self.brain_context = self.envs[Gut.NAME].context, self.envs[Brain.NAME].context
 
         # Fill background and draw border rectangle
         self.screen.fill(self.background_color)

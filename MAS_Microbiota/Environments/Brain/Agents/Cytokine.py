@@ -1,18 +1,17 @@
 from typing import Tuple
-from repast4py import core
 from repast4py.space import DiscretePoint as dpt
 import numpy as np
 
 from MAS_Microbiota import Simulation
 from .Microglia import Microglia
+from ... import GridAgent
 
-class Cytokine(core.Agent):
+
+class Cytokine(GridAgent):
     TYPE = 8
 
     def __init__(self, local_id: int, rank: int, pt: dpt, context):
-        super().__init__(id=local_id, type=Cytokine.TYPE, rank=rank)
-        self.pt = pt
-        self.context = context
+        super().__init__(local_id=local_id, type=Cytokine.TYPE, rank=rank, pt=pt, context=context)
         possible_types = [Simulation.params["cyto_state"]["pro_inflammatory"],
                           Simulation.params["cyto_state"]["non_inflammatory"]]
         random_index = np.random.randint(0, len(possible_types))
@@ -47,7 +46,7 @@ class Cytokine(core.Agent):
         nghs_coords = Simulation.model.ngh_finder.find(self.pt.x, self.pt.y)
         microglie = []
         for ngh_coords in nghs_coords:
-            nghs_array = Simulation.model.envs['brain']['grid'].get_agents(dpt(ngh_coords[0], ngh_coords[1]))
+            nghs_array = Simulation.model.envs['brain'].grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
             for ngh in nghs_array:
                 if (type(ngh) == Microglia):
                     microglie.append(ngh)

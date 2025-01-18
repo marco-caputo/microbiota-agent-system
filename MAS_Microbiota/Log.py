@@ -56,19 +56,19 @@ class Log:
             "tau_oligomer_brain": 0
         }
 
-        for env in Simulation.model.envs:
-            context = Simulation.model.envs[env]["context"]
+        for env_name in Simulation.model.envs:
+            context = Simulation.model.envs[env_name].context
             for agent in context.agents():
                 if isinstance(agent, Oligomer):
                     if agent.name == Simulation.params["protein_name"]["alpha_syn"]:
-                        counts["alpha_oligomer_"+env] += 1
+                        counts["alpha_oligomer_"+env_name] += 1
                     else:
-                        counts["tau_oligomer_"+env] += 1
+                        counts["tau_oligomer_"+env_name] += 1
                 elif isinstance(agent, CleavedProtein):
                     if agent.name == Simulation.params["protein_name"]["alpha_syn"]:
-                        counts["alpha_cleaved_"+env] += 1
+                        counts["alpha_cleaved_"+env_name] += 1
                     else:
-                        counts["tau_cleaved_"+env] += 1
+                        counts["tau_cleaved_"+env_name] += 1
                 elif isinstance(agent, Neuron):
                     if agent.state == Simulation.params["neuron_state"]["healthy"]:
                         counts["neuron_healthy"] += 1
@@ -81,9 +81,9 @@ class Log:
                         counts["microglia_resting"] += 1
                 elif (type(agent) == Protein):
                     if (agent.name == Simulation.params["protein_name"]["alpha_syn"]):
-                        counts["alpha_protein_"+env] += 1
+                        counts["alpha_protein_"+env_name] += 1
                     else:
-                        counts["tau_protein_"+env] += 1
+                        counts["tau_protein_"+env_name] += 1
                 elif (type(agent) == AEP):
                     if (agent.state == Simulation.params["aep_state"]["active"]):
                         counts["aep_active"] += 1

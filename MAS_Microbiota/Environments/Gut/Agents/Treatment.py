@@ -1,22 +1,21 @@
 from typing import Tuple
-from repast4py import core
 from repast4py.space import DiscretePoint as dpt
 import numpy as np
 
 from MAS_Microbiota import Simulation
+from MAS_Microbiota.Environments import GridAgent
 
-class Treatment(core.Agent):
+
+class Treatment(GridAgent):
 
     TYPE = 5
 
     def __init__(self, local_id: int, rank: int, pt: dpt, context):
-        super().__init__(id=local_id, type=Treatment.TYPE, rank=rank)
+        super().__init__(local_id=local_id, type=Treatment.TYPE, rank=rank, pt=pt, context=context)
         possible_types = [Simulation.params["treatment_input"]["diet"],Simulation.params["treatment_input"]["probiotics"]]
         random_index = np.random.randint(0, len(possible_types))
         input_name = possible_types[random_index]
-        self.pt = pt
         self.input_name = input_name
-        self.context = context
 
     def save(self) -> Tuple:
         return (self.uid, self.input_name, self.pt.coordinates, self.context)

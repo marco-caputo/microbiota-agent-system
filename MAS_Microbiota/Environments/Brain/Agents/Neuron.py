@@ -1,19 +1,18 @@
 from typing import Tuple
-from repast4py import core
 from repast4py.space import DiscretePoint as dpt
 import numpy as np
 
 from MAS_Microbiota import Simulation
+from MAS_Microbiota.Environments import GridAgent
 
-class Neuron(core.Agent):
+
+class Neuron(GridAgent):
     TYPE = 7
 
     def __init__(self, local_id: int, rank: int, initial_state, pt: dpt, context: str):
-        super().__init__(id=local_id, type=Neuron.TYPE, rank=rank)
+        super().__init__(local_id=local_id, type=Neuron.TYPE, rank=rank, pt=pt, context=context)
         self.state = initial_state
-        self.pt = pt
         self.toRemove = False
-        self.context = context
 
     def save(self) -> Tuple:
         return (self.uid, self.state, self.pt.coordinates, self.toRemove, self.context)
