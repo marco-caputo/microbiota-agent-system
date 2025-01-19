@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Tuple, Any
-
+from repast4py import context as ctx
 from repast4py.core import Agent
-
 
 class GridEnvironment(ABC):
     """
@@ -11,7 +10,7 @@ class GridEnvironment(ABC):
 
     NAME: str
 
-    def __init__(self, context, grid):
+    def __init__(self, context: ctx, grid):
         self.context = context
         self.grid = grid
 
@@ -35,3 +34,15 @@ class GridEnvironment(ABC):
         This method should implement the logic of the environment at each step of the simulation.
         """
         pass
+
+    def synchronize(self, restore_agent):
+        """
+        Synchronize the agents in the environment.
+        """
+        self.context.synchronize(restore_agent)
+
+    def agents(self):
+        return self.context.agents()
+
+    def remove(self, agent):
+        self.context.remove(agent)

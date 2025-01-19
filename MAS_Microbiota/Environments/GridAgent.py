@@ -18,14 +18,14 @@ class GridAgent(ABC, Agent):
         self.context = context
 
     @abstractmethod
-    def save(self) -> Tuple[int, ...]:
+    def save(self) -> Tuple[int, dpt, str]:
         """
         Returns the agent's state in a tuple. The tuple should contain the environment-unique id
         as first element, followed by other information like the agent's state, it's position and
         its current environment name.
         :return: The agent's state in a tuple.
         """
-        pass
+        return self.id, self.pt, self.context
 
     @abstractmethod
     def step(self):
