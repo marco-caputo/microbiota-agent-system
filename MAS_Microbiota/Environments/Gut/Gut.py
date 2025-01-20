@@ -47,32 +47,26 @@ class Gut(GridEnvironment):
                 if (Simulation.model.barrier_impermeability + value_increased) <= Simulation.params["barrier_impermeability"]:
                     Simulation.model.barrier_impermeability = Simulation.model.barrier_impermeability + value_increased
 
+
+    def agents_to_remove(self):
+        return (Oligomer, CleavedProtein, Protein)
+
+
     def step(self):
-        self.context.synchronize(restore_agent)
-
-        def gather_agents_to_remove():
-            return [agent for agent in self.context.agents() if
-                    isinstance(agent, (Oligomer, CleavedProtein, Protein)) and agent.toRemove]
-
-        remove_agents = gather_agents_to_remove()
         removed_ids = set()
-        for agent in remove_agents:
-            if self.context.agent(agent.uid) is not None:
-                Simulation.model.remove_agent(agent)
-                removed_ids.add(agent.uid)
-
         self.context.synchronize(restore_agent)
+        self.remove_agents(removed_ids)
+        self.context.synchronize(restore_agent)
+        self.make_agents_steps()
 
-        for agent in self.context.agents():
-            agent.step()
-
-        protein_to_remove = []
-        all_true_cleaved_aggregates = []
+        # Collect data and perform operations based on agent states
         oligomers_to_move = []
+        proteins_to_remove = []
+        all_true_cleaved_aggregates = []
 
         for agent in self.context.agents():
             if type(agent) == Protein and agent.toCleave == True:
-                protein_to_remove.append(agent)
+                proteins_to_remove.append(agent)
                 agent.toRemove = True
             elif type(agent) == CleavedProtein and agent.toAggregate == True:
                 all_true_cleaved_aggregates.append(agent)
@@ -81,9 +75,21 @@ class Gut(GridEnvironment):
                 oligomers_to_move.append(agent)
                 agent.toRemove = True
 
+        self.move_oligomers_to_brain(oligomers_to_move)
+        self.remove_proteins_and_add_cleaved_proteins(removed_ids, proteins_to_remove)
+        self.context.synchronize(restore_agent)
+        self.aggreagate_cleaved_proteins(removed_ids, all_true_cleaved_aggregates)
+        self.context.synchronize(restore_agent)
+        self.remove_agents(removed_ids)
+
+
+
+    def move_oligomers_to_brain(self, oligomers_to_move):
         for agent in oligomers_to_move:
             Simulation.model.gutBrainInterface.transfer_from_gut_to_brain(agent)
 
+
+    def remove_proteins_and_add_cleaved_proteins(self, removed_ids, protein_to_remove):
         for agent in protein_to_remove:
             if agent.uid in removed_ids:
                 continue
@@ -93,8 +99,8 @@ class Gut(GridEnvironment):
             Simulation.model.gut_add_cleaved_protein(protein_name)
             Simulation.model.gut_add_cleaved_protein(protein_name)
 
-        self.context.synchronize(restore_agent)
 
+    def aggreagate_cleaved_proteins(self, removed_ids, all_true_cleaved_aggregates):
         for agent in all_true_cleaved_aggregates:
             if agent.uid in removed_ids:
                 continue
@@ -115,12 +121,3 @@ class Gut(GridEnvironment):
                 Simulation.model.add_oligomer_protein(agent.name, 'gut')
                 Simulation.model.remove_agent(agent)
                 removed_ids.add(agent.uid)
-
-        self.context.synchronize(restore_agent)
-
-        remove_agents = gather_agents_to_remove()
-        for agent in remove_agents:
-            if agent.uid not in removed_ids:
-                if self.context.agent(agent.uid) is not None:
-                    Simulation.model.remove_agent(agent)
-                    removed_ids.add(agent.uid)
