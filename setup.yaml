@@ -92,3 +92,17 @@ brain_log_file: 'output/brain_log.csv'
 log_file: 'output/log_file.csv'
 seed: 42
 
+
+# Bacterial states
+bacteria_state : {
+    "None": 0, 
+    "VeryLow" : 1, 
+    "Low" : 2, 
+    "Medium" : 3, 
+    "High" : 4, 
+    "VeryHigh" : 5, 
+    "Maximum" : 6
+}
+bacteria_initial_state = "Medium"
+
+
