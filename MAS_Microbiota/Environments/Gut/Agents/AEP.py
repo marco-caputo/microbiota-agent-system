@@ -5,16 +5,15 @@ import numpy as np
 from .Protein import Protein
 
 from MAS_Microbiota import Simulation
+from ... import GridAgent
 
 
-class AEP(core.Agent):
+class AEP(GridAgent):
     TYPE = 0
 
     def __init__(self, local_id: int, rank: int, pt: dpt, context):
-        super().__init__(id=local_id, type=AEP.TYPE, rank=rank)
+        super().__init__(local_id=local_id, type=AEP.TYPE, rank=rank, pt=pt, context=context)
         self.state = Simulation.params["aep_state"]["active"]
-        self.pt = pt
-        self.context = context
 
     def save(self) -> Tuple:
         return (self.uid, self.state, self.pt.coordinates, self.context)
@@ -42,7 +41,7 @@ class AEP(core.Agent):
     # returns the protein agent in the neighborhood of the agent
     def percepts(self, nghs_coords):
         for ngh_coords in nghs_coords:
-            nghs_array = Simulation.model.gut_grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
+            nghs_array = Simulation.model.envs['gut'].grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
             for ngh in nghs_array:
                 if type(ngh) == Protein:
                     return ngh

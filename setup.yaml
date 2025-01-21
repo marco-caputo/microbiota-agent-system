@@ -72,6 +72,15 @@ cyto_state : {
     non_inflammatory: "non_inflammatory"
 }
 
+#Neurotransmitter variables
+neurotrans_initial_availability : 5
+precursor_boost: 5
+neurotrans_decrease : {
+    healthy : 1,
+    damaged : 3,
+    dead: 5
+}
+
 # Model variables
 world.width: 100
 world.height: 100

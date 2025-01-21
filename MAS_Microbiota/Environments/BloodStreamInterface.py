@@ -1,7 +1,7 @@
 from repast4py import random
 from MAS_Microbiota import Simulation
 
-class GutBrainInterface():
+class BloodStreamInterface():
     def __init__(self, gut_context, brain_context):
         self.gut_context = gut_context
         self.brain_context = brain_context

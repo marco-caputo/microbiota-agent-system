@@ -1,28 +1,27 @@
 from typing import Tuple
-from repast4py import core
 from repast4py.space import DiscretePoint as dpt
 import numpy as np
 
 from MAS_Microbiota import Simulation
+from MAS_Microbiota.Environments import GridAgent
 
-class CleavedProtein(core.Agent):
+
+class CleavedProtein(GridAgent):
     TYPE = 2
 
     def __init__(self, local_id: int, rank: int, cleaved_protein_name, pt: dpt, context):
-        super().__init__(id=local_id, type=CleavedProtein.TYPE, rank=rank)
+        super().__init__(local_id=local_id, type=CleavedProtein.TYPE, rank=rank, pt=pt, context=context)
         self.name = cleaved_protein_name
         self.toAggregate = False
         self.alreadyAggregate = False
         self.toRemove = False
-        self.pt = pt
-        self.context = context
 
     def save(self) -> Tuple:
         return (
         self.uid, self.name, self.pt.coordinates, self.toAggregate, self.alreadyAggregate, self.toRemove, self.context)
 
     def step(self):
-        if self.alreadyAggregate == True or self.toAggregate == True or self.pt is None:
+        if self.alreadyAggregate or self.toAggregate or self.pt is None:
             pass
         else:
             cleaved_nghs_number, _, nghs_coords = self.check_and_get_nghs()
@@ -38,9 +37,9 @@ class CleavedProtein(core.Agent):
         nghs_coords = Simulation.model.ngh_finder.find(self.pt.x, self.pt.y)
         for ngh_coords in nghs_coords:
             if self.context == 'brain':
-                nghs_array = Simulation.model.brain_grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
+                nghs_array = Simulation.model.envs['brain'].grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
             else:
-                nghs_array = Simulation.model.gut_grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
+                nghs_array = Simulation.model.envs['gut'].grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
             for ngh in nghs_array:
                 if ngh is not None:
                     ngh.alreadyAggregate = False
@@ -57,7 +56,7 @@ class CleavedProtein(core.Agent):
             return False
 
     def change_state(self):
-        if self.toAggregate == False:
+        if not self.toAggregate:
             self.toAggregate = True
 
     def check_and_get_nghs(self):
@@ -66,9 +65,9 @@ class CleavedProtein(core.Agent):
         cleavedProteins = []
         for ngh_coords in nghs_coords:
             if self.context == 'brain':
-                ngh_array = Simulation.model.brain_grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
+                ngh_array = Simulation.model.envs['brain'].grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
             else:
-                ngh_array = Simulation.model.gut_grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
+                ngh_array = Simulation.model.envs['gut'].grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
             for ngh in ngh_array:
                 if (type(ngh) == CleavedProtein and self.name == ngh.name):
                     cleavedProteins.append(ngh)
