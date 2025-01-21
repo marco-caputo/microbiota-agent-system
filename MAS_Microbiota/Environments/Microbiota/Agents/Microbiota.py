@@ -2,21 +2,21 @@ from Bacterium import Energy
 from MAS_Microbiota import Simulation, restore_agent
 from MAS_Microbiota.Environments import GridAgent, GridEnvironment
 from MAS_Microbiota.Environments.Microbiota.Agents.Bacterium import Bacterium, State
-from repast4py.space import DiscretePoint as dpt
 from MAS_Microbiota.Environments.Microbiota.Agents.Metabolite import Metabolite
 from MAS_Microbiota.Environments.Microbiota.Agents.SCFA import SCFAType
 from MAS_Microbiota.Environments.Microbiota.Agents.Substrate import Substrate
 
 
-class Microbiota:
+class Microbiota(GridEnvironment):
 
     def __init__(self, context: GridEnvironment, grid: GridAgent):
-        self.context = context
-        self.grid = Simulation.model.envs['microbiota']['grid']
+        super().__init__(context, grid)
 
     def step(self):
+        removed_ids = set()
         self.context.synchronize(restore_agent)
-        self.remove_dead_bacteria()
+        self.remove_agents(removed_ids)
+        self.make_agents_steps()
         self.apply_actions()
         self.context.synchronize(restore_agent)
 
@@ -47,6 +47,18 @@ class Microbiota:
                         neighbours.append(neighbour)
         self.perform_action(bacteria, neighbours)
     """
+
+    @staticmethod
+    def agent_types():
+        return [
+            ('bacterium.count', Bacterium, None),
+            ('metabolite.count', Metabolite, None),
+            ('scfa.count', SCFAType, None),
+            ('substrate.count', Substrate, None)
+        ]
+
+    def agents_to_remove(self):
+        return Bacterium, Metabolite, SCFAType, Substrate
 
     def perform_action(self, bacteria, neighbours):
         pairs = list(zip(bacteria, neighbours))
