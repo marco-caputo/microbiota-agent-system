@@ -103,6 +103,4 @@ bacteria_state : {
     "VeryHigh" : 5, 
     "Maximum" : 6
 }
-bacteria_initial_state = "Medium"
-
-
+bacteria_initial_state : "Medium"
