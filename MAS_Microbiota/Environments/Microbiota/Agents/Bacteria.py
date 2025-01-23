@@ -14,7 +14,7 @@ from MAS_Microbiota.Environments.Microbiota.Agents import SCFA
 # so there might be no need to parameterize the context.
 class Bacterium(GridAgent):
     """
-    This class represents a Bacteria...
+    This class represents a unit of Bacteria...
     @param TYPE
     @param internal_states
     @param em
@@ -37,13 +37,15 @@ class Bacterium(GridAgent):
         self.energy_level = Simulation.params["bacteria_states"][Simulation.params["bacterial_initial_state"]]
         self.duplicate = False
 
+    def save():
+        ...
+
 
     def step(self) -> None:
         """
         This function describes the behaviour of the bacteria agent in the environment.
         
         """
-
 
         ...
 
