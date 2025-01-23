@@ -94,7 +94,7 @@ seed: 42
 
 
 # Bacterial states
-bacteria_state : {
+bacteria_states : {
     "None": 0, 
     "VeryLow" : 1, 
     "Low" : 2, 

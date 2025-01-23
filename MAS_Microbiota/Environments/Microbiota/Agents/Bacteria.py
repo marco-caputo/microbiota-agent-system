@@ -5,14 +5,14 @@ from repast4py.context import SharedContext as ctx
 from MAS_Microbiota import Simulation
 import numpy as np, random as rd, uuid
 
-from MAS_Microbiota.Environments import ResourceAgent
+from MAS_Microbiota.Environments import ResourceAgent, GridAgent
 from MAS_Microbiota.Environments.Microbiota.Agents import Substrate
 from MAS_Microbiota.Environments.Microbiota.Agents import SCFA
 
 
 # a bacteria only exists within the microbiota, 
 # so there might be no need to parameterize the context.
-class Bacterium(core.Agent):
+class Bacterium(GridAgent):
     """
     This class represents a Bacteria...
     @param TYPE
@@ -28,13 +28,13 @@ class Bacterium(core.Agent):
     pt:dpt
 
     #we could import uuid and use it to generate our ids instead of local_id input
-    def __init__(self, rank:int, context:ctx, pt:dpt) -> core.Agent:
-        super().__init__(id=uuid.uuid4(), type=Bacterium.TYPE , rank=rank)
+    def __init__(self, local_id:int, rank:int, context:str, pt:dpt) -> core.Agent:
+        super().__init__(id=local_id, type=Bacterium.TYPE , rank=rank, pt=pt, context=context)
         self.TYPE = type
         self.context = context
         self.rank = rank
         self.pt = pt
-        self.energy_level = Simulation.params["bacterial_in_state"][Simulation.params["bacterial_initial_state"]]
+        self.energy_level = Simulation.params["bacteria_states"][Simulation.params["bacterial_initial_state"]]
         self.duplicate = False
 
 
@@ -52,6 +52,12 @@ class Bacterium(core.Agent):
         """
         This method observes the surrounding of the Bacterium agent for other 
         Bacteria agents or Nutrient agents.
+
+        Returns
+        -------
+        tuple[List, List]
+            A tuple containing the list of neighbouring Bacteria agents and 
+            the list of neighbouring ResourceAgents.
         """
         return self.__find_nghs_bacteria__(), self.__find_nghs_nutrients__()
 
@@ -60,6 +66,11 @@ class Bacterium(core.Agent):
         """
         Finds the neighbouring Bacteria around this Bacterium within the
         distance of a unit from its current position.
+
+        Returns
+        -------
+        List[Bacterium]
+            A list of neighbouring Bacteria agents.
         """
         nghs_coords = Simulation.model.ngh_finder.find(self.pt.x, self.pt.y) #returns a list of coordinates around this point
         return self.__check_for_nghs_bacteria__(nghs_coords)
@@ -69,6 +80,11 @@ class Bacterium(core.Agent):
         """
         Finds the neighbouring ResourceAgent around this Bacterium within the 
         distance of a unit from its current position.
+
+        returns
+        -------
+        List[ResourceAgent]
+            A list of neighbouring Resource agents.
         """
         nghs_coords = Simulation.model.ngh_finder.find(self.pt.x, self.pt.y) #returns a list of coordinates around this point
         return self.__check_for_nghs_resources__(nghs_coords)
@@ -76,12 +92,18 @@ class Bacterium(core.Agent):
     
     def __check_for_nghs_bacteria__(self, nghs_coords:np.NDArray) -> List['Bacterium']:
         """
-        Given a list of coordinates around an agent it checks for neighbouring agents which are also bacteria.
+        Given a list of coordinates around an agent it checks for neighbouring 
+        agents which are also bacteria.
         
         Parameters
         ----------
         param nghs_coords: List[dpt]
             list of coordinates around this agent.
+
+        Returns
+        -------
+        List[Bacterium]
+            A list of neighbouring Bacteria agents.
         """
         result = []
         for ngh_coord in nghs_coords:
@@ -95,12 +117,18 @@ class Bacterium(core.Agent):
 
     def __check_for_nghs_resources__(self, nghs_coords:np.NDArray) -> List[ResourceAgent]:
         """
-        Given a list of coordinates around an agent it checks for neighbouring agents which are resources - namely SCFA or Substrate.
+        Given a list of coordinates around an agent it checks for neighbouring 
+        agents which are resources - namely SCFA or Substrate.
         
         Parameters
         ----------
         param nghs_coords: List[dpt]
             list of coordinates around this agent.
+
+        Returns
+        -------
+        List[ResourceAgent]
+            A list of neighbouring Resource agents.
         """
         result = []
         for ngh_coord in nghs_coords:
@@ -119,7 +147,7 @@ class Bacterium(core.Agent):
     def perform_action(self, per:tuple[List, List]) -> None:
         """
         Performs an action on the bacterium based on its inner state and 
-        the conditions of its surroundings.
+        the conditions surrounds it.
 
         Parameters
         ----------
@@ -127,14 +155,17 @@ class Bacterium(core.Agent):
             A tuple containing the list of neighbouring Bacteria agents and 
             the list of neighbouring ResourceAgents.
 
+        return
+        ------
+        None
         """
-        if self.energy_level == Simulation.params["bacterial_in_state"]["Maximum"] and len(per[1]) > 0:
+        if self.energy_level == Simulation.params["bacteria_states"]["Maximum"] and len(per[1]) > 0:
             self.fission()
-        elif Simulation.params["bacterial_in_state"]["None"] < self.energy_level < Simulation.params["bacterial_in_state"]["Maximum"] and any(isinstance(item, Substrate) for item in per[1]): # i should check that the resource is instance of Substrate on the right side of the and operator
+        elif Simulation.params["bacteria_states"]["None"] < self.energy_level < Simulation.params["bacteria_states"]["Maximum"] and any(isinstance(item, Substrate) for item in per[1]): # i should check that the resource is instance of Substrate on the right side of the and operator
             self.ferment(resources=per[1])
-        elif self.energy_level < Simulation.params["bacterial_in_state"]["Maximum"] and any(isinstance(item, SCFA) for item in per[1]):
+        elif self.energy_level < Simulation.params["bacteria_states"]["Maximum"] and any(isinstance(item, SCFA) for item in per[1]):
             self.consume(resources=per[1])
-        elif self.energy_level >= Simulation.params["bacterial_in_state"]["High"] and not any(isinstance(item, SCFA) for item in per[1]):
+        elif self.energy_level >= Simulation.params["bacteria_states"]["High"] and not any(isinstance(item, SCFA) for item in per[1]):
             self.release_bacteriocins()
 
 
@@ -144,9 +175,18 @@ class Bacterium(core.Agent):
     # should we limit fission to the immediate surroundings or 
     # should we allow it to generate in random positions?
     def fission(self) -> None:
-        if self.energy_level == Simulation.params["bacteria_initernal_state"]["High"]:
+        if self.energy_level == Simulation.params["bacteria_states"]["High"]:
             pt = ... #has to be an empty neighbour spot in the grid
-            clone = Bacterium(rank=self.rank, context=self.context, pt=pt) #TODO identify the best way to position the clone
+            # since id is assigned by the model during agent creation it is unlikely that 
+            # we will need to generate a new id for the clone right here, thus unable to 
+            # create the clone, unless we share the same id or change the id assigning strategy.
+
+            # we could have uuid generate the id for the clone
+
+            ### check if there is an empty point around this bacterium
+            ### if there is, create a clone of the bacterium at that point
+
+            clone = Bacterium(...) #TODO identify the best way to position the clone
             
             ...
 
@@ -155,6 +195,15 @@ class Bacterium(core.Agent):
         Ferments a Substrate agent into a metabolite agent or 
         produces more energy for the Bacterium, given however that at least
         a Substrate is present in the vicinity.
+
+        Parameters
+        ----------
+        param resources: List[ResourceAgent]
+            A list of ResourceAgent agents in the vicinity of the Bacterium.
+
+        return
+        ------
+        None
         """
         if len(resources) > 0:
             for resource in resources:
@@ -171,23 +220,37 @@ class Bacterium(core.Agent):
     def consume(self, resources:List[ResourceAgent]) -> None:
         """
         Consumes a SCFA agent to produce energy for the bacteria.
+
+        Parameters
+        ----------
+        param resources: List[ResourceAgent]
+            A list of ResourceAgent agents in the vicinity of the Bacterium.
+
+        return
+        ------
+        None
         """
         if len(resources) > 0:
             index = rd.randint(0, len(resources)-1)
             resource = resources.pop(index)
             resource.toRemove = True
-            self.energy_level+=1
-        self.update_internal_state()
+            self.increase_energy()
 
 
     def release_bacteriocins(self) -> None:
         """
         Releases bacteriocins into the environment to kill neighbouring competing 
-        Bacterium agents."""
+        Bacterium agents.
+        
+        return
+        ------
+        None
+        """
         # is this an agent too?
         # how many bacteria can a bacteriocin kill before it runs our its life course?
         # how many bacteriocins can a Bacterium release?
         ...
+
 
     def idle(self) -> None:
         pass
@@ -196,9 +259,26 @@ class Bacterium(core.Agent):
     
     ###### Utility Methods   ######
 
+    def produce_metabolite(self) -> None:
+        """
+        Produces a Metabolite agent in the environment.
+        """
+        ...
+
+
     def find_empty_pts(pt:dpt)-> List[dpt]:
         """
-        Finds the empty points around a given point and returns them.
+        Finds the empty points around a given point.
+
+        Parameters
+        ----------
+        param pt: dpt
+            The point for which we want to find the empty points around.
+
+        return
+        ------
+        List[dpt]
+            A list of empty points around the given point.
         """
         empty_pt_list = []
         nghs_coords = Simulation.model.ngh_finder.find(pt)
@@ -208,38 +288,52 @@ class Bacterium(core.Agent):
                  empty_pt_list.append(empty_pt_list)
         return empty_pt_list
     
+
     def get_internal_state(value:int|str) -> int|str:
         """
-        Returns the string or integer representation of the internal state of the Bacterium.
+        Returns the string or integer representation of the internal state 
+        of the Bacterium that corresponds to the given value.
+
+        Parameters
+        ----------
+        param value: int|str
+            The value whose correspondent to get in the internal state of the Bacterium.
+        
+        return
+        ------
+        int|str
+            The string or integer representation of the internal state of the Bacterium.
         """
-        codomain = {key: val for key, val in Simulation.params["bacterial_in_state"].items()}
+        codomain = {val: key for key, val in Simulation.params["bacteria_states"].items()}
             
         if type(value) == str:
-            return Simulation.params["bacterial_state"][value]
+            return Simulation.params["bacteria_states"][value]
         elif type(value) == int:
             return codomain[value]
     
 
     def increase_energy(self) -> None:
         """
-        Increases the energy level of the Bacterium by one unit.
+        Increases the energy level of the Bacterium by one unit and updates its internal state.
+        
+        return
+        ------
+        None
         """
         self.energy_level += 1
         self.update_internal_state()
 
-    def produce_metabolite(self) -> None:
-        """
-        Produces a Metabolite agent in the environment.
-        """
-        ...
-
     
-    def update_internal_state(self):
+    def update_internal_state(self) -> None:
         """
         Updates the current state of the Bacterium in accordance with
         its remaining energy levels.
+
+        return
+        ------
+        None
         """
-        self.energy_level = True if Simulation.params["bacterial_in_state"]["Maximum"] else self.duplicate = False # if energy level is maximum, the bacteria will fission.
+        self.energy_level = True if Simulation.params["bacteria_states"]["Maximum"] else self.duplicate = False # if energy level is maximum, the bacteria will fission.
 
 
 
