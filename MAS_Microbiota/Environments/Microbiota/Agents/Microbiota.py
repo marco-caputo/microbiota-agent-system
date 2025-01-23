@@ -1,11 +1,12 @@
-from Bacterium import Energy
 from MAS_Microbiota import Simulation, restore_agent
 from MAS_Microbiota.Environments import GridAgent, GridEnvironment
-from MAS_Microbiota.Environments.Microbiota.Agents.Bacterium import Bacterium, State
+from MAS_Microbiota.Environments.Brain.Agents.Neurotransmitter import Neurotransmitter
+from MAS_Microbiota.Environments.Brain.Agents.Precursor import Precursor
+from MAS_Microbiota.Environments.Microbiota.Agents.Bacteria import Bacterium
 from MAS_Microbiota.Environments.Microbiota.Agents.Metabolite import Metabolite
-from MAS_Microbiota.Environments.Microbiota.Agents.SCFA import SCFAType
+from MAS_Microbiota.Environments.Microbiota.Agents.SCFA import SCFAType, SCFA
 from MAS_Microbiota.Environments.Microbiota.Agents.Substrate import Substrate
-
+import numpy as np
 
 class Microbiota(GridEnvironment):
 
@@ -24,14 +25,10 @@ class Microbiota(GridEnvironment):
         for bacterium in (agent for agent in self.context.agents() if isinstance(agent, Bacterium)): # For each bacterium in the context...
             bacterium.step() # Call the step method of the bacterium.
             neighbours = Simulation.model.ngh_finder.find(bacterium.point.x, bacterium.point.y) # Neighbours of the bacterium...
-            if bacterium.state == State.FISSION:
+            if bacterium.to_fission:
                 self.fission(bacterium, neighbours)
-            elif bacterium.state == State.FERMENT:
+            elif bacterium.to_ferment:
                 self.ferment(bacterium, neighbours)
-            elif bacterium.state == State.CONSUME:
-                self.consume(bacterium, neighbours)
-            elif bacterium.state == State.BACTERIOCINS:
-                self.bacteriocins(bacterium, neighbours)
 
     """
     def action(self):
@@ -60,41 +57,27 @@ class Microbiota(GridEnvironment):
     def agents_to_remove(self):
         return Bacterium, Metabolite, SCFAType, Substrate
 
-    def perform_action(self, bacteria, neighbours):
-        pairs = list(zip(bacteria, neighbours))
-        for i, (bacterium, neighbours_list) in enumerate(pairs):
-            if bacterium.energy == Energy.MAXIMUM and any(isinstance(neighbour, (SCFAType, Metabolite)) for neighbour in neighbours_list):
-                self.fission(bacterium, neighbours_list)
-            elif Energy.NONE < bacterium.energy < Energy.MAXIMUM and any(isinstance(neighbour, Substrate) for neighbour in neighbours_list):
-                self.ferment(bacterium)
-            elif bacterium.energy < Energy.MAXIMUM and any(isinstance(neighbour, SCFAType) for neighbour in neighbours_list):
-                self.consume(bacterium)
-            elif bacterium.energy >= Energy.HIGH and not any(isinstance(neighbour, (SCFAType, Metabolite)) for neighbour in neighbours_list):
-                self.bacteriocins(bacterium)
-
-
-    def remove_dead_bacteria(self):
-        dead_bacteria = [agent for agent in self.context.agents() if isinstance(agent, Bacterium) and agent.toRemove]
-        for bacterium in dead_bacteria:
-            self.context.remove(bacterium)
-
     def fission(self, bacterium, neighbours):
         point = neighbours.get_random_local_pt(Simulation.model.rng)
-        new_bacterium = Bacterium(self.context, Energy.HIGH, point, State.IDLE)
+        Simulation.model.added_agents_id += 1
+        new_bacterium = Bacterium(Simulation.model.added_agents_id, Simulation.model.rank, self.context, point)
         self.context.agents().add(new_bacterium)
+        bacterium.to_fission = False
 
     def ferment(self, bacterium, neighbours):
         point = neighbours.get_random_local_pt(Simulation.model.rng)
-        scfa = SCFAType(self.context, Energy.HIGH, point, State.IDLE)
-        for neighbour in (neighbour for neighbour in neighbours if isinstance(neighbour, Substrate)):
-            neighbour.toRemove = True
-            break
-        self.context.agents().add(scfa)
+        # modify here: according to the bacterium's family, different SCFAs are created.
+        Simulation.model.added_agents_id += 1
+        self.add_metabolite(bacterium.produced_scfa(), SCFA, point)
+        self.add_metabolite(bacterium.produced_precursors(), Precursor, point)
+        self.add_metabolite(bacterium.produced_neurotransmitters(), Neurotransmitter, point)
 
-    def consume(self, bacterium, neighbours):
-        for neighbour in (neighbour for neighbour in neighbours if isinstance(neighbour, SCFAType)):
-            neighbour.toRemove = True
-
-    def bacteriocins(self, bacterium, neighbours):
-        for neighbour in (neighbour for neighbour in neighbours if isinstance(neighbour, Bacterium)):
-            neighbour.toRemove = True
+    """
+    Based on the assumption that all agents have the same constructor signature.
+    """
+    def add_metabolite(self, types, agent_class, point):
+        if len(types) > 0:
+            current_type = np.random.choice(types)
+            Simulation.model.added_agents_id += 1
+            agent = agent_class(Simulation.model.added_agents_id, Simulation.model.rank, current_type, point, self.context)
+            self.context.agents().add(agent)

@@ -1,4 +1,5 @@
-from typing import List
+from enum import Enum
+from typing import List, Tuple
 from repast4py import core
 from repast4py.space import DiscretePoint as dpt
 from repast4py.context import SharedContext as ctx
@@ -6,8 +7,11 @@ from MAS_Microbiota import Simulation
 import numpy as np, random as rd, uuid
 
 from MAS_Microbiota.Environments import ResourceAgent, GridAgent
+from MAS_Microbiota.Environments.Brain.Agents.Neurotransmitter import NeurotransmitterType
+from MAS_Microbiota.Environments.Brain.Agents.Precursor import PrecursorType
 from MAS_Microbiota.Environments.Microbiota.Agents import Substrate
 from MAS_Microbiota.Environments.Microbiota.Agents import SCFA
+from MAS_Microbiota.Environments.Microbiota.Agents.SCFA import SCFAType
 
 
 # a bacteria only exists within the microbiota, 
@@ -28,16 +32,18 @@ class Bacterium(GridAgent):
     pt:dpt
 
     #we could import uuid and use it to generate our ids instead of local_id input
-    def __init__(self, local_id:int, rank:int, context:str, pt:dpt) -> core.Agent:
-        super().__init__(id=local_id, type=Bacterium.TYPE , rank=rank, pt=pt, context=context)
+    def __init__(self, local_id:int, rank:int, context:str, pt:dpt, to_fission = False, to_ferment = False):
+        super().__init__(local_id=local_id, type=Bacterium.TYPE , rank=rank, pt=pt, context=context)
         self.TYPE = type
         self.context = context
         self.rank = rank
         self.pt = pt
         self.energy_level = Simulation.params["bacteria_states"][Simulation.params["bacterial_initial_state"]]
         self.duplicate = False
+        self.to_fission = to_fission
+        self.to_ferment = to_ferment
 
-    def save():
+    def save(self):
         ...
 
 
@@ -337,6 +343,20 @@ class Bacterium(GridAgent):
         """
         self.energy_level = True if Simulation.params["bacteria_states"]["Maximum"] else self.duplicate = False # if energy level is maximum, the bacteria will fission.
 
+    def produced_scfa(self) -> [SCFAType]:
+        """
+        Returns the list of SCFAs produced.
+        """
+        ...
 
+    def produced_neurotransmitters(self) -> [NeurotransmitterType]:
+        """
+        Returns the list of Neurotransmitters produced.
+        """
+        ...
 
-
+    def produced_precursors(self) -> [PrecursorType]:
+        """
+        Returns the list of Precursors produced.
+        """
+        ...

@@ -11,8 +11,8 @@ class SCFAType(Enum):
 class SCFA(ResourceAgent):
     TYPE = 10
 
-    def __init__(self, local_id: int, type: int, scfa_type: SCFAType, rank: int, pt: dpt, context):
-        super().__init__(local_id=local_id, type=type, rank=rank, pt=pt, context=context)
+    def __init__(self, local_id: int, rank: int, scfa_type: SCFAType, pt: dpt, context):
+        super().__init__(local_id=local_id, type=self.TYPE, rank=rank, pt=pt, context=context)
         self.scfa_type = scfa_type
 
 
