@@ -2,7 +2,7 @@ from MAS_Microbiota import Simulation, restore_agent
 from MAS_Microbiota.Environments import GridAgent, GridEnvironment
 from MAS_Microbiota.Environments.Brain.Agents.Neurotransmitter import Neurotransmitter
 from MAS_Microbiota.Environments.Brain.Agents.Precursor import Precursor
-from MAS_Microbiota.Environments.Microbiota.Agents.Bacteria import Bacterium
+from MAS_Microbiota.Environments.Microbiota.Agents.Bacterium import Bacterium
 from MAS_Microbiota.Environments.Microbiota.Agents.Metabolite import Metabolite
 from MAS_Microbiota.Environments.Microbiota.Agents.SCFA import SCFAType, SCFA
 from MAS_Microbiota.Environments.Microbiota.Agents.Substrate import Substrate
