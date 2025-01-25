@@ -100,5 +100,6 @@ bacteria_energy_deltas: {
     "ferment": 3,
     "consume": 2,
     "bacteriocins": -3,
+    "move": -1,
     "idle": -1
 }

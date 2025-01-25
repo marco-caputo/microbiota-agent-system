@@ -31,8 +31,8 @@ class ResourceAgent(GridAgent):
             return
         else:
             nghs_coords = Simulation.model.ngh_finder.find(self.pt.x, self.pt.y)
-            random_index = np.random.randint(0, len(nghs_coords))
-            chosen_dpt = dpt(nghs_coords[random_index][0], nghs_coords[random_index][1])
+            rand_pos = Simulation.model.rng.choice(nghs_coords)
+            chosen_dpt = dpt(rand_pos[0], rand_pos[1])
             Simulation.model.move(self, chosen_dpt, self.context)
 
     # Protein step function

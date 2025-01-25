@@ -77,7 +77,7 @@ class Neuron(GridAgent):
         # Uses a nearby precursor to make more neurotransmitters available
         precursor = self.percept_precursor()
         if precursor is not None:
-            neurotrans = np.random.choice(precursor.associated_neurotransmitters())
+            neurotrans = np.random.choice(precursor.precursor_type.associated_neurotransmitters())
             self.neurotrans_availability[neurotrans] += Simulation.params["precursor_boost"]
 
         # Decreases the rate at which the neuron produces neurotransmitters

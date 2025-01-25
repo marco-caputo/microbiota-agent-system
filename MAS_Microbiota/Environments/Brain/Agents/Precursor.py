@@ -1,11 +1,18 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
 from MAS_Microbiota.Environments import ResourceAgent
 from .Neurotransmitter import NeurotransmitterType
 
-class PrecursorType(Enum):
+class PrecursorType(IntEnum):
     TRYPTOPHAN = 1
     TYROSINE = 2
+
+    def associated_neurotransmitters(self):
+        if self == PrecursorType.TRYPTOPHAN:
+            return [NeurotransmitterType.SEROTONIN]
+        else:
+            return [NeurotransmitterType.DOPAMINE, NeurotransmitterType.NOREPINEPHRINE]
+
 
 class Precursor(ResourceAgent):
 
@@ -20,12 +27,6 @@ class Precursor(ResourceAgent):
 
     def save(self):
         return (self.uid, self.precursor_type, self.pt.coordinates, self.context)
-
-    def associated_neurotransmitters(self):
-        if self.precursor_type == PrecursorType.TRYPTOPHAN:
-            return [NeurotransmitterType.SEROTONIN]
-        else:
-            return [NeurotransmitterType.DOPAMINE, NeurotransmitterType.NOREPINEPHRINE]
 
     def step(self):
         super().step()

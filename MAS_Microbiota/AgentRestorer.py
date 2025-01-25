@@ -3,6 +3,7 @@ from repast4py.space import DiscretePoint as dpt
 
 from MAS_Microbiota.Environments.Brain.Agents import *
 from MAS_Microbiota.Environments.Gut.Agents import *
+from MAS_Microbiota.Environments.Microbiota.Agents import *
 
 agent_cache = {}
 
@@ -55,6 +56,16 @@ AGENT_MAPPING = {
     Treatment.TYPE: {
         "constructor": lambda uid, pt, context, _: Treatment(uid[0], uid[2], pt, context),
         "attributes": lambda agent, _: None,
+    },
+    Bacterium.TYPE: {
+        "constructor": lambda uid, pt, context, data: data[1](uid[0], uid[2], pt, context),
+        "attributes": lambda agent, data: (
+            setattr(agent, "toFission", data[4]),
+            setattr(agent, "toFerment", {Substrate: data[5], Precursor: data[6]}),
+            setattr(agent, "fermentedPrecursor", data[7]),
+            setattr(agent, "toRemove", data[8]),
+            setattr(agent, "energy_level", EnergyLevel(data[9])),
+        ),
     },
 }
 
