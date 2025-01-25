@@ -29,4 +29,5 @@ class Precursor(ResourceAgent):
         return (self.uid, self.precursor_type, self.pt.coordinates, self.context)
 
     def step(self):
-        super().step()
+        self.random_movement()
+        self.check_if_to_move(permeability_check=False)

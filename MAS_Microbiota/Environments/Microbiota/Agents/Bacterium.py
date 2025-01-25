@@ -78,7 +78,7 @@ class Bacterium(GridAgent):
         nghs_coords = Simulation.model.ngh_finder.find(self.pt.x, self.pt.y)
         return self.__check_for_nghs_bacteria__(nghs_coords), self.__check_for_nghs_resources__(nghs_coords)
 
-    def __check_for_nghs_bacteria__(self, nghs_coords: np.NDArray) -> List['Bacterium']:
+    def __check_for_nghs_bacteria__(self, nghs_coords: np.ndarray) -> List['Bacterium']:
         """
         Given a list of coordinates around an agent it checks for neighbouring 
         agents which are also bacteria not marked for removal.
@@ -94,7 +94,7 @@ class Bacterium(GridAgent):
                     result.append(ngh)
         return result
 
-    def __check_for_nghs_resources__(self, nghs_coords: np.NDArray) -> List[ResourceAgent]:
+    def __check_for_nghs_resources__(self, nghs_coords: np.ndarray) -> List[ResourceAgent]:
         """
         Given a list of coordinates around an agent it checks for neighbouring 
         agents which are resources of interest, namely SCFA or Substrate. The
@@ -224,7 +224,7 @@ class Bacterium(GridAgent):
         if len(free_nghs) > 0:
             rand_pos = Simulation.model.rng.choice(free_nghs)
             chosen_dpt = dpt(rand_pos[0], rand_pos[1])
-            Simulation.model.move(self, chosen_dpt, self.context)
+            Simulation.model.move(self, chosen_dpt, 'microbiota')
             self.update_energy(Simulation.params["bacteria_energy_deltas"]["move"])
 
     def idle(self) -> None:
@@ -308,3 +308,10 @@ class Bacterium(GridAgent):
         Returns True if the bacterium can move.
         """
         return True
+
+    @abstractmethod
+    def causes_inflammation(self) -> bool:
+        """
+        Returns True if the bacterium causes inflammation.
+        """
+        ...

@@ -14,9 +14,8 @@ class Protein(ResourceAgent):
     def save(self) -> Tuple:
         return (self.uid, self.name, self.pt.coordinates, self.toCleave, self.toRemove, self.context)
 
-    # Protein step function
     def step(self):
-        super().step()
+        self.random_movement()
 
     # changes the state of the protein agent
     def change_state(self):

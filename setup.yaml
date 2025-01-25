@@ -80,6 +80,7 @@ neurotrans_decrease : {
     damaged : 3,
     dead: 5
 }
+neurotrans_max_age : 8
 
 # Model variables
 world.width: 100

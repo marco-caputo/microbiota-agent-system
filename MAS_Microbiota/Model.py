@@ -94,7 +94,7 @@ class Model():
         self.runner = schedule.init_schedule_runner(comm)
         self.runner.schedule_repeating_event(1, 1, self.envs[Gut.NAME].step)
         self.runner.schedule_repeating_event(1, 2, self.envs[Gut.NAME].microbiota_dysbiosis_step)
-        self.runner.schedule_repeating_event(1, 5, self.teleport_resources_step)
+        self.runner.schedule_repeating_event(1, 6, self.teleport_resources_step)
         self.runner.schedule_repeating_event(1, 1, self.envs[Brain.NAME].step, priority_type=0)
         self.runner.schedule_repeating_event(1, 1, self.screen.pygame_update, priority_type=1)
         self.runner.schedule_repeating_event(1, 1, self.counts.log_counts, priority_type=1)
@@ -188,7 +188,8 @@ class Model():
     # Function to move the cleaved protein agents
     def teleport_resources_step(self):
         self.teleport_cleaved_protein_step()
-        #TODO: Microbiota.teleport_resources_step() -> Teletrasportare substrati
+        #TODO a regime: self.envs[Microbiota.NAME].teleport_resources_step()
+
     def teleport_cleaved_protein_step(self):
         for env_name in [Gut.NAME, Brain.NAME]:
             for agent in Simulation.model.envs[env_name].context.agents():

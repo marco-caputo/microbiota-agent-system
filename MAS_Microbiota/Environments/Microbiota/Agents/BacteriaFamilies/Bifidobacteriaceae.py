@@ -21,7 +21,6 @@ class Bifidobacteriaceae(Bacterium):
     def consumable_scfa(self) -> List[SCFAType]:
         return self.produced_scfa() + [SCFAType.BUTYRATE]
 
-
     def produced_scfa(self) -> List[SCFAType]:
         return [SCFAType.ACETATE]
 
@@ -32,5 +31,8 @@ class Bifidobacteriaceae(Bacterium):
         return True
 
     def can_move(self) -> bool:
+        return False
+
+    def causes_inflammation(self) -> bool:
         return False
 

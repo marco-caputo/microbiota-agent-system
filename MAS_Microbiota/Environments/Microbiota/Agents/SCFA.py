@@ -21,7 +21,8 @@ class SCFA(ResourceAgent):
 
 
     def step(self):
-        super().step()
+        self.random_movement()
+        self.check_if_to_move(permeability_check=False)
 
     def BBB_integrity_coefficient(self):
         """

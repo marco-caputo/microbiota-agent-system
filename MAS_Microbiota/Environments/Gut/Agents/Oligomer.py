@@ -19,13 +19,5 @@ class Oligomer(ResourceAgent):
 
     # Oligomer step function
     def step(self):
-        super().step()
-        if self.pt is not None:
-            nghs_coords = Simulation.model.ngh_finder.find(self.pt.x, self.pt.y)
-            if len(nghs_coords) <= 6 and self.context == 'gut':
-                if Simulation.model.barrier_impermeability < Simulation.params["barrier_impermeability"]:
-                    percentage_threshold = int((Simulation.model.barrier_impermeability *
-                                                Simulation.params["barrier_impermeability"]) / 100)
-                    choice = np.random.randint(0, 100)
-                    if choice > percentage_threshold:
-                        self.toMove = True
+        self.random_movement()
+        self.check_if_to_move(permeability_check=True)

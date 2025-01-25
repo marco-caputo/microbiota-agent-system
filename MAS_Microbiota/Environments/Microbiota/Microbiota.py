@@ -1,4 +1,3 @@
-import numpy as np
 from repast4py.space import DiscretePoint as dpt
 
 from MAS_Microbiota import Simulation, restore_agent
@@ -6,7 +5,6 @@ from MAS_Microbiota.Environments import GridAgent, GridEnvironment, ResourceAgen
 from MAS_Microbiota.Environments.Brain.Agents.Neurotransmitter import Neurotransmitter
 from MAS_Microbiota.Environments.Brain.Agents.Precursor import Precursor, PrecursorType
 from MAS_Microbiota.Environments.Microbiota.Agents.Bacterium import Bacterium
-from MAS_Microbiota.Environments.Microbiota.Agents.Metabolite import Metabolite
 from MAS_Microbiota.Environments.Microbiota.Agents.SCFA import SCFAType, SCFA
 from MAS_Microbiota.Environments.Microbiota.Agents.Substrate import Substrate
 
@@ -30,8 +28,27 @@ class Microbiota(GridEnvironment):
         self.context.synchronize(restore_agent)
         self.remove_agents(removed_ids)
         self.make_agents_steps()
+
+        resources_to_move = []
+
+        for agent in self.context.agents():
+            if isinstance(agent, ResourceAgent) and agent.toMove:
+                resources_to_move.append(agent)
+                agent.toRemove = True
+
+        self.move_resources_to_brain(resources_to_move)
         self.apply_actions()
         self.context.synchronize(restore_agent)
+
+
+    def move_resources_to_brain(self, resources_to_move):
+        for agent in resources_to_move:
+            Simulation.model.gutBrainInterface.transfer_from_gut_to_brain(agent)
+            #TODO: introduce the BBB barrier
+            #TODO: introduce vagous nerve interface
+            #TODO: add agents to restorer
+            #TODO: count bacteria in the brain
+
 
     def apply_actions(self):
         for bacterium in (agent for agent in self.context.agents() if isinstance(agent, Bacterium)): # For each bacterium in the context...
@@ -92,7 +109,7 @@ class Microbiota(GridEnvironment):
         return empty_pt_list
 
     def ferment(self, bacterium: Bacterium, fermentable_type: type[ResourceAgent]):
-        neighbours = Simulation.model.ngh_finder.find(bacterium.point.x, bacterium.point.y)  # Neighbours of the bacterium...
+        neighbours = Simulation.model.ngh_finder.find(bacterium.pt.x, bacterium.pt.y)  # Neighbours of the bacterium...
         point = neighbours.get_random_local_pt(Simulation.model.rng)
         if fermentable_type == Substrate:
             self.add_metabolite(bacterium.produced_scfa(), SCFA, point)
@@ -102,10 +119,14 @@ class Microbiota(GridEnvironment):
             self.add_metabolite(fermented_precursor_type.associated_neurotransmitters(), Neurotransmitter, point)
             bacterium.fermentedPrecursor = 0
 
-
     # Based on the assumption that all metabolite and neurotransmitters agents have the same constructor signature.
     def add_metabolite(self, types, agent_class, point):
         if len(types) > 0:
             current_type = Simulation.model.rng.choice(types)
             agent = agent_class(Simulation.model.new_id(), Simulation.model.rank, current_type, point, self.context)
             self.context.agents().add(agent)
+
+    def teleport_resources_step(self):
+        for agent in [ag for ag in self.context.agents() if isinstance(ag, Substrate)]:
+            pt = self.grid.get_random_local_pt(Simulation.model.rng)
+            Simulation.model.move(agent, pt, agent.context)

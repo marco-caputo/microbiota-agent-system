@@ -21,4 +21,4 @@ class Substrate(ResourceAgent):
 
 
     def step(self):
-        super().step()
+        self.random_movement()

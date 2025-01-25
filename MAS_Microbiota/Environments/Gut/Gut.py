@@ -65,13 +65,13 @@ class Gut(GridEnvironment):
         all_true_cleaved_aggregates = []
 
         for agent in self.context.agents():
-            if type(agent) == Protein and agent.toCleave == True:
+            if type(agent) == Protein and agent.toCleave:
                 proteins_to_remove.append(agent)
                 agent.toRemove = True
-            elif type(agent) == CleavedProtein and agent.toAggregate == True:
+            elif type(agent) == CleavedProtein and agent.toAggregate:
                 all_true_cleaved_aggregates.append(agent)
                 agent.toRemove = True
-            elif type(agent) == Oligomer and agent.toMove == True:
+            elif type(agent) == Oligomer and agent.toMove:
                 oligomers_to_move.append(agent)
                 agent.toRemove = True
 
