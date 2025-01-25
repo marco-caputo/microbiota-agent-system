@@ -103,7 +103,7 @@ class Model():
 
     def init_rng(self):
         """
-        Initializes the random number generator for the model.
+        Initializes the random number generators for the model.
         """
         random.seed = Simulation.params['seed']
         self.rng = random.default_rng
@@ -211,6 +211,13 @@ class Model():
         self.envs[env_name].grid.move(agent, pt)
         agent.pt = pt
 
+    def new_id(self):
+        """
+        Generates a new unique id for an agent.
+        :return: The new unique id
+        """
+        self.added_agents_id += 1
+        return self.added_agents_id
 
     # Function to close the data set and quit Pygame
     def at_end(self):

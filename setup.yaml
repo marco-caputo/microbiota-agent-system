@@ -94,13 +94,11 @@ seed: 42
 
 
 # Bacterial states
-bacteria_states : {
-    "None": 0, 
-    "VeryLow" : 1, 
-    "Low" : 2, 
-    "Medium" : 3, 
-    "High" : 4, 
-    "VeryHigh" : 5, 
-    "Maximum" : 6
+bacteria_initial_state : "HIGH"
+bacteria_energy_deltas: {
+    "fission": -3,
+    "ferment": 3,
+    "consume": 2,
+    "bacteriocins": -3,
+    "idle": -1
 }
-bacteria_initial_state : "Medium"

@@ -1,3 +1,6 @@
+import numpy as np
+from repast4py.space import DiscretePoint as dpt
+
 from MAS_Microbiota import Simulation, restore_agent
 from MAS_Microbiota.Environments import GridAgent, GridEnvironment
 from MAS_Microbiota.Environments.Brain.Agents.Neurotransmitter import Neurotransmitter
@@ -6,7 +9,6 @@ from MAS_Microbiota.Environments.Microbiota.Agents.Bacterium import Bacterium
 from MAS_Microbiota.Environments.Microbiota.Agents.Metabolite import Metabolite
 from MAS_Microbiota.Environments.Microbiota.Agents.SCFA import SCFAType, SCFA
 from MAS_Microbiota.Environments.Microbiota.Agents.Substrate import Substrate
-import numpy as np
 
 class Microbiota(GridEnvironment):
 
@@ -24,11 +26,10 @@ class Microbiota(GridEnvironment):
     def apply_actions(self):
         for bacterium in (agent for agent in self.context.agents() if isinstance(agent, Bacterium)): # For each bacterium in the context...
             bacterium.step() # Call the step method of the bacterium.
-            neighbours = Simulation.model.ngh_finder.find(bacterium.point.x, bacterium.point.y) # Neighbours of the bacterium...
-            if bacterium.to_fission:
-                self.fission(bacterium, neighbours)
-            elif bacterium.to_ferment:
-                self.ferment(bacterium, neighbours)
+            if bacterium.toFission:
+                self.fission(bacterium)
+            elif bacterium.toFerment:
+                self.ferment(bacterium)
 
     """
     def action(self):
@@ -57,16 +58,41 @@ class Microbiota(GridEnvironment):
     def agents_to_remove(self):
         return Bacterium, Metabolite, SCFAType, Substrate
 
-    def fission(self, bacterium, neighbours):
-        point = neighbours.get_random_local_pt(Simulation.model.rng)
-        Simulation.model.added_agents_id += 1
-        new_bacterium = Bacterium(Simulation.model.added_agents_id, Simulation.model.rank, self.context, point)
-        self.context.agents().add(new_bacterium)
-        bacterium.to_fission = False
+    def fission(self, bacterium):
+        """
+        Applies fission to a bacterium agent, creating a new bacterium agent in an empty position around the bacterium.
+        If no empty position is found, the fission is not applied, but the state of the bacterium remains unchanged
+        in order to try again in the next step.
 
-    def ferment(self, bacterium, neighbours):
+        :param bacterium: The bacterium agent to apply fission
+        """
+        empty_ngh_pts = self.find_empty_pts_fission(bacterium.pt)
+        if len(empty_ngh_pts) == 0:
+            return
+        point = Simulation.model.rng.choice(empty_ngh_pts)
+        bact_class = type(bacterium)
+        new_bacterium = bact_class(Simulation.model.new_id(), Simulation.model.rank, self.context, point)
+        self.context.agents().add(new_bacterium)
+        bacterium.toFission = False
+
+    def find_empty_pts_fission(self, pt: dpt) -> list[dpt]:
+        """
+        Finds the position around a given point that do not have any bacterium agent.
+        :param pt: The point to check
+        :return: A list of empty points
+        """
+        empty_pt_list = []
+        nghs_coords = Simulation.model.ngh_finder.find(pt)
+        for ngh_coords in nghs_coords:
+            nghs_agents = list(self.grid.get_agents(dpt(ngh_coords[0], ngh_coords[1])))
+            if len([ag for ag in nghs_agents if isinstance(ag, Bacterium)]) == 0:
+                 empty_pt_list.append(empty_pt_list)
+        return empty_pt_list
+
+    def ferment(self, bacterium):
+        neighbours = Simulation.model.ngh_finder.find(bacterium.point.x, bacterium.point.y)  # Neighbours of the bacterium...
         point = neighbours.get_random_local_pt(Simulation.model.rng)
-        # modify here: according to the bacterium's family, different SCFAs are created.
+        #TODO modify here: according to the bacterium's family, different SCFAs are created.
         Simulation.model.added_agents_id += 1
         self.add_metabolite(bacterium.produced_scfa(), SCFA, point)
         self.add_metabolite(bacterium.produced_precursors(), Precursor, point)
