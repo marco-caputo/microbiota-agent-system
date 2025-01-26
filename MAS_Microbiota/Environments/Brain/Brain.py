@@ -16,15 +16,15 @@ class Brain(GridEnvironment):
     @staticmethod
     def agent_types():
         return [
-                ('neuron_healthy.count', Neuron, 'healthy'),
-                ('neuron_damaged.count', Neuron, 'damaged'),
-                ('neuron_dead.count', Neuron, 'dead'),
-                ('resting_microglia.count', Microglia, 'resting'),
-                ('active_microglia.count', Microglia, 'active'),
-                ('alpha_syn_cleaved_brain.count', CleavedProtein, Simulation.params["protein_name"]["alpha_syn"]),
-                ('tau_cleaved_brain.count', CleavedProtein, Simulation.params["protein_name"]["tau"]),
-                ('alpha_syn_oligomer_brain.count', Oligomer, Simulation.params["protein_name"]["alpha_syn"]),
-                ('tau_oligomer_brain.count', Oligomer, Simulation.params["protein_name"]["tau"]),
+                ('neuron_healthy.count', Neuron, NeuronState.HEALTHY),
+                ('neuron_damaged.count', Neuron, NeuronState.DAMAGED),
+                ('neuron_dead.count', Neuron, NeuronState.DEAD),
+                ('resting_microglia.count', Microglia, MicrogliaState.RESTING),
+                ('active_microglia.count', Microglia, MicrogliaState.ACTIVE),
+                ('alpha_syn_cleaved_brain.count', CleavedProtein, ProteinName.ALPHA_SYN),
+                ('tau_cleaved_brain.count', CleavedProtein, ProteinName.TAU),
+                ('alpha_syn_oligomer_brain.count', Oligomer, ProteinName.ALPHA_SYN),
+                ('tau_oligomer_brain.count', Oligomer, ProteinName.TAU),
                 ('cytokine.count', Cytokine, None)
             ]
 
@@ -49,9 +49,9 @@ class Brain(GridEnvironment):
         for agent in self.context.agents():
             if isinstance(agent, Oligomer) and agent.toRemove:
                 oligomer_to_remove.append(agent)
-            elif isinstance(agent, Microglia) and agent.state == Simulation.params["microglia_state"]["active"]:
+            elif isinstance(agent, Microglia) and agent.state == MicrogliaState.ACTIVE:
                 active_microglias += 1
-            elif isinstance(agent, Neuron) and agent.state == Simulation.params["neuron_state"]["damaged"]:
+            elif isinstance(agent, Neuron) and agent.state == NeuronState.DAMAGED:
                 damaged_neurons += 1
             elif isinstance(agent, CleavedProtein) and agent.toAggregate:
                 all_true_cleaved_aggregates.append(agent)
@@ -66,25 +66,28 @@ class Brain(GridEnvironment):
         self.remove_agents(removed_ids)
 
 
-    # Function to add a cytokine agent to the brain context
     def add_cytokines(self, active_microglias: int):
+        """
+        Adds a cytokine agent to the brain context for each active microglia.
+        :param active_microglias: Number of active microglias.
+        """
         for _ in range(active_microglias):
-            Simulation.model.added_agents_id += 1
             pt = self.grid.get_random_local_pt(Simulation.model.rng)
-            cytokine = Cytokine(Simulation.model.added_agents_id, Simulation.model.rank, pt, 'brain')
+            cytokine = Cytokine(Simulation.model.new_id(), Simulation.model.rank, pt, 'brain')
             self.context.add(cytokine)
             Simulation.model.move(cytokine, cytokine.pt, 'brain')
 
 
     # Function to add a cleaved protein agent to the brain context for each damaged neuron
-    def brain_add_cleaved_protein(self, damaged_neurons):
+    def brain_add_cleaved_protein(self, damaged_neurons: int):
+        """
+        Adds a cleaved protein agent to the brain context for each damaged neuron.
+        :param damaged_neurons: Number of damaged neurons.
+        """
         for _ in range(damaged_neurons):
-            Simulation.model.added_agents_id += 1
-            possible_types = [Simulation.params["protein_name"]["alpha_syn"], Simulation.params["protein_name"]["tau"]]
-            random_index = np.random.randint(0, len(possible_types))
-            cleaved_protein_name = possible_types[random_index]
+            cleaved_protein_name = Simulation.model.rng.choice(list(ProteinName))
             pt = self.grid.get_random_local_pt(Simulation.model.rng)
-            cleaved_protein = CleavedProtein(Simulation.model.added_agents_id, Simulation.model.rank,
+            cleaved_protein = CleavedProtein(Simulation.model.new_id(), Simulation.model.rank,
                                              cleaved_protein_name, pt, 'brain')
             self.context.add(cleaved_protein)
             Simulation.model.move(cleaved_protein, cleaved_protein.pt, cleaved_protein.context)

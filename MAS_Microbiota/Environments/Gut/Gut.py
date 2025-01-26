@@ -16,12 +16,15 @@ class Gut(GridEnvironment):
     def agent_types():
         return [
             ('aep_enzyme.count', AEP, None),
-            ('tau_proteins.count', Protein, Simulation.params["protein_name"]["tau"]),
-            ('alpha_syn_proteins.count', Protein, Simulation.params["protein_name"]["alpha_syn"]),
-            ('external_input.count', ExternalInput, None),
-            ('treatment_input.count', Treatment, None),
-            ('alpha_syn_oligomers_gut.count', Oligomer, Simulation.params["protein_name"]["alpha_syn"]),
-            ('tau_oligomers_gut.count', Oligomer, Simulation.params["protein_name"]["tau"]),
+            ('tau_proteins.count', Protein, ProteinName.TAU),
+            ('alpha_syn_proteins.count', Protein, ProteinName.ALPHA_SYN),
+            ('external_input_diet.count', ExternalInput, ExternalInputType.DIET),
+            ('external_input_antibiotics.count', ExternalInput, ExternalInputType.ANTIBIOTICS),
+            ('external_input_stress.count', ExternalInput, ExternalInputType.STRESS),
+            ('treatment_diet.count', Treatment, TreatmentType.DIET),
+            ('treatment_probiotics.count', Treatment, TreatmentType.PROBIOTICS),
+            ('tau_oligomers_gut.count', Oligomer, ProteinName.TAU),
+            ('alpha_syn_oligomers_gut.count', Oligomer, ProteinName.ALPHA_SYN)
         ]
 
     # Function to check if the microbiota is dysbiotic and adjust the barrier impermeability
@@ -36,8 +39,8 @@ class Gut(GridEnvironment):
             number_of_aep_to_hyperactivate = value_decreased
             cont = 0
             for agent in self.context.agents(agent_type=AEP.TYPE):
-                if agent.state == Simulation.params["aep_state"]["active"] and cont < number_of_aep_to_hyperactivate:
-                    agent.state = Simulation.params["aep_state"]["hyperactive"]
+                if agent.state == AEPState.ACTIVE and cont < number_of_aep_to_hyperactivate:
+                    agent.state = AEPState.HYPERACTIVE
                     cont += 1
                 elif cont == number_of_aep_to_hyperactivate:
                     break
@@ -86,7 +89,7 @@ class Gut(GridEnvironment):
 
     def move_oligomers_to_brain(self, oligomers_to_move):
         for agent in oligomers_to_move:
-            Simulation.model.gutBrainInterface.transfer_from_gut_to_brain(agent)
+            Simulation.model.gutBrainInterface.transfer_to_bloodstream(agent)
 
 
     def remove_proteins_and_add_cleaved_proteins(self, removed_ids, protein_to_remove):

@@ -1,5 +1,5 @@
 from .Cytokine import Cytokine
-from .Microglia import Microglia
-from .Neuron import Neuron
+from .Microglia import MicrogliaState, Microglia
+from .Neuron import NeuronState, Neuron
 from .Precursor import Precursor
 from .Neurotransmitter import Neurotransmitter

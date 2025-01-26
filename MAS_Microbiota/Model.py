@@ -9,7 +9,7 @@ from repast4py.space import DiscretePoint as dpt
 from MAS_Microbiota.GUI import GUI
 from MAS_Microbiota.Utils import *
 from MAS_Microbiota.Log import Log
-from MAS_Microbiota.Environments.BloodStreamInterface import BloodStreamInterface
+from MAS_Microbiota.Environments.GutBrainInterface import GutBrainInterface
 from MAS_Microbiota.Environments.Gut.Agents import *
 from MAS_Microbiota.Environments.Brain.Agents import *
 from MAS_Microbiota.AgentRestorer import restore_agent
@@ -60,7 +60,7 @@ class Model():
             self.envs[Env.NAME] = Env(context, grid)
 
         self.ngh_finder = GridNghFinder(0, 0, box.xextent, box.yextent)
-        self.gutBrainInterface = BloodStreamInterface(self.envs[Gut.NAME].context, self.envs[Brain.NAME].context)
+        self.gutBrainInterface = GutBrainInterface(self.envs)
 
 
     def init_grid(self, name, box, context):
@@ -123,7 +123,9 @@ class Model():
         self.microbiota_good_bacteria_class = Simulation.params["microbiota_good_bacteria_class"]
         self.microbiota_pathogenic_bacteria_class = Simulation.params["microbiota_pathogenic_bacteria_class"]
         self.microbiota_diversity_threshold = Simulation.params["microbiota_diversity_threshold"]
-        self.barrier_impermeability = Simulation.params["barrier_impermeability"]
+
+    def init_gut_brain_interface_params(self):
+        self.barrier_impermeability = Simulation.params["epithelial_barrier"]["impermeability"]
         self.barrier_permeability_threshold_stop = Simulation.params["barrier_permeability_threshold_stop"]
         self.barrier_permeability_threshold_start = Simulation.params["barrier_permeability_threshold_start"]
 
@@ -148,16 +150,13 @@ class Model():
             self.create_agents(agent_type[1], pp_count, agent_type[2], env)
 
     # Function to create agents in the different ranks based on the total count
-    def create_agents(self, agent_class, pp_count, state_key, env_name):
+    def create_agents(self, agent_class, pp_count, state, env_name):
         for j in range(pp_count):
             pt = self.envs[env_name].grid.get_random_local_pt(self.rng)
-            if agent_class in [Neuron, Microglia]:
-                agent = agent_class(self.added_agents_id + j, self.rank,
-                                    Simulation.params[f"{agent_class.__name__.lower()}_state"][state_key], pt, env_name)
-            elif agent_class in [CleavedProtein, Oligomer, Protein]:
-                agent = agent_class(self.added_agents_id + j, self.rank, Simulation.params["protein_name"][state_key], pt, env_name)
+            if agent_class in [Neuron, Microglia, CleavedProtein, Oligomer, Protein,  ExternalInput, Treatment]:
+                agent = agent_class(self.added_agents_id + j, self.rank, state, pt, env_name)
             else:
-                # For agents without special state keys
+                # For agents without special state
                 agent = agent_class(self.added_agents_id + j, self.rank, pt, env_name)
             self.envs[env_name].context.add(agent)
             self.move(agent, pt, agent.context)

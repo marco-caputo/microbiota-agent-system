@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Tuple
 from repast4py.space import DiscretePoint as dpt
 import numpy as np
@@ -5,20 +6,20 @@ import numpy as np
 from MAS_Microbiota import Simulation
 from MAS_Microbiota.Environments import GridAgent
 
+class TreatmentType(Enum):
+    DIET = 1
+    PROBIOTICS = 2
 
 class Treatment(GridAgent):
 
     TYPE = 5
 
-    def __init__(self, local_id: int, rank: int, pt: dpt, context):
+    def __init__(self, local_id: int, rank: int, treatment_type: TreatmentType, pt: dpt, context):
         super().__init__(local_id=local_id, type=Treatment.TYPE, rank=rank, pt=pt, context=context)
-        possible_types = [Simulation.params["treatment_input"]["diet"],Simulation.params["treatment_input"]["probiotics"]]
-        random_index = np.random.randint(0, len(possible_types))
-        input_name = possible_types[random_index]
-        self.input_name = input_name
+        self.treatment_type = treatment_type
 
     def save(self) -> Tuple:
-        return (self.uid, self.input_name, self.pt.coordinates, self.context)
+        return (self.uid, self.treatment_type, self.pt.coordinates, self.context)
 
     # Treatment step function
     def step(self):
@@ -29,7 +30,7 @@ class Treatment(GridAgent):
                 to_remove = int((Simulation.model.microbiota_pathogenic_bacteria_class * np.random.uniform(0, pathogenic_bacteria_factor)) / 100)
                 Simulation.model.microbiota_pathogenic_bacteria_class -= to_remove
 
-            if self.input_name == Simulation.params["treatment_input"]["diet"]:
+            if self.treatment_type == TreatmentType.DIET:
                 adjust_bacteria(3, 2)
-            elif self.input_name == Simulation.params["treatment_input"]["probiotics"]:
+            elif self.treatment_type == TreatmentType.PROBIOTICS:
                 adjust_bacteria(4, 4)

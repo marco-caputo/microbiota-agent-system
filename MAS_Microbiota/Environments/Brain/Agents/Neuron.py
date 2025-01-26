@@ -1,3 +1,4 @@
+from enum import IntEnum
 from typing import Tuple, Dict, Optional
 from repast4py.space import DiscretePoint as dpt
 import numpy as np
@@ -7,11 +8,15 @@ from MAS_Microbiota.Environments import GridAgent
 from .Precursor import Precursor
 from .Neurotransmitter import NeurotransmitterType
 
+class NeuronState(IntEnum):
+    HEALTHY = 1
+    DAMAGED = 2
+    DEAD = 3
 
 class Neuron(GridAgent):
     TYPE = 7
 
-    def __init__(self, local_id: int, rank: int, initial_state, pt: dpt, context: str):
+    def __init__(self, local_id: int, rank: int, initial_state: NeuronState, pt: dpt, context: str):
         super().__init__(local_id=local_id, type=Neuron.TYPE, rank=rank, pt=pt, context=context)
         self.state = initial_state
         self.toRemove = False
@@ -21,7 +26,7 @@ class Neuron(GridAgent):
         self.neurotrans_rate = {neuro_type: 1 for neuro_type in NeurotransmitterType}
 
     def save(self) -> Tuple:
-        return (self.uid, self.state, self.pt.coordinates, self.neurotrans_availability, self.toRemove, self.context)
+        return (self.uid, int(self.state), self.pt.coordinates, self.neurotrans_availability, self.toRemove, self.context)
 
     # Neuron step function
     def step(self):
@@ -31,10 +36,8 @@ class Neuron(GridAgent):
 
     # Changes the state of the neuron agent
     def change_state(self):
-        if self.state == Simulation.params["neuron_state"]["healthy"]:
-            self.state = Simulation.params["neuron_state"]["damaged"]
-        elif self.state == Simulation.params["neuron_state"]["damaged"]:
-            self.state = Simulation.params["neuron_state"]["dead"]
+        self.state = NeuronState(max(0, int(self.state) - 1))
+        if self.state == NeuronState.DEAD:
             self.toRemove = True
             Simulation.model.dead_neuron += 1
 
@@ -70,8 +73,11 @@ class Neuron(GridAgent):
         per neurotransmitter.
         """
         for neurotransmitter in self.neurotrans_availability:
-            self.neurotrans_availability[neurotransmitter] = (max(0,
-                self.neurotrans_availability[neurotransmitter] -
+            if self.state == NeuronState.DEAD:
+                self.neurotrans_availability[neurotransmitter] = 0
+            else:
+                self.neurotrans_availability[neurotransmitter] = (max(0,
+                    self.neurotrans_availability[neurotransmitter] -
                     Simulation.params["neurotrans_decrease"][self.state]*self.neurotrans_rate[neurotransmitter]))
 
         # Uses a nearby precursor to make more neurotransmitters available

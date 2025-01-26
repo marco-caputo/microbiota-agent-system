@@ -1,5 +1,5 @@
+from enum import IntEnum
 from typing import Tuple
-from repast4py import core
 from repast4py.space import DiscretePoint as dpt
 import numpy as np
 from .Protein import Protein
@@ -7,23 +7,23 @@ from .Protein import Protein
 from MAS_Microbiota import Simulation
 from ... import GridAgent
 
+class AEPState(IntEnum):
+    ACTIVE = 1
+    HYPERACTIVE = 2
 
 class AEP(GridAgent):
     TYPE = 0
 
     def __init__(self, local_id: int, rank: int, pt: dpt, context):
         super().__init__(local_id=local_id, type=AEP.TYPE, rank=rank, pt=pt, context=context)
-        self.state = Simulation.params["aep_state"]["active"]
+        self.state = AEPState.ACTIVE
 
     def save(self) -> Tuple:
-        return (self.uid, self.state, self.pt.coordinates, self.context)
+        return (self.uid, int(self.state), self.pt.coordinates, self.context)
 
     # returns True if the agent is hyperactive, False otherwise
     def is_hyperactive(self):
-        if self.state == Simulation.params["aep_state"]["active"]:
-            return False
-        else:
-            return True
+        return self.state == AEPState.HYPERACTIVE
 
     # AEP step function
     def step(self):

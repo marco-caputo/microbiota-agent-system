@@ -1,31 +1,55 @@
-# Gut system
 # Barrier variables
-barrier_impermeability : 50
-barrier_permeability_threshold : 25 
-barrier_permeability_threshold_stop : 20
-barrier_permeability_threshold_start : 30
+epithelial_barrier: {
+    impermeability: 50,
+    permeability_threshold: 25,
+    permeability_threshold_stop: 20,
+    permeability_threshold_start: 30
+}
 
 # Microbiota variables
 microbiota_good_bacteria_class : 30000
 microbiota_pathogenic_bacteria_class : 10000
 microbiota_diversity_threshold : 10000
 
-# To start the dysbyosis
-external_input.count : 10
-external_input : {
-    diet : "diet", 
-    antibiotics: "antibiotics",
-    stress: "stress" 
+# Bacterial states
+bacteria_initial_state : "HIGH"
+bacteria_energy_deltas: {
+    "fission": -3,
+    "ferment": 3,
+    "consume": 2,
+    "bacteriocins": -3,
+    "move": -1,
+    "idle": -1
 }
+
+# Diet variables
+diet_substrates : {
+    "balanced": {
+        "fiber": 50,
+        "carbohydrates": 50,
+        "sugar": 50
+    },
+    "external_input_influence": {
+        "fiber": -2,
+        "carbohydrates": -1,
+        "sugar": 1
+    },
+    "treatment_influence": {
+        "fiber": 3,
+        "carbohydrates": 2,
+        "sugar": -2
+    }
+}
+
+# To start the dysbyosis
+external_input_diet.count : 10
+external_input_antibiotics.count : 10
+external_input_stress.count : 10
 
 # The treatment to use
 treatment : True
-treatment_input.count : 10
-
-treatment_input : {
-    diet: "diet", 
-    probiotics: "probiotics" 
-}
+treatment_diet.count : 10
+treatment_probiotics.count : 10
 
 # The agents
 aep_enzyme.count : 50
@@ -33,16 +57,6 @@ tau_proteins.count : 300
 alpha_syn_proteins.count : 300
 tau_oligomers_gut.count : 0
 alpha_syn_oligomers_gut.count : 0
-
-protein_name : {
-    tau: "tau",
-    alpha_syn: "alpha_syn"
-}
-
-aep_state : {
-    active: "active",
-    hyperactive: "hyperactive"
-}
 
 # Nervous system variables
 active_microglia.count: 0
@@ -56,23 +70,8 @@ alpha_syn_oligomer_brain.count : 0
 tau_cleaved_brain.count : 0
 tau_oligomer_brain.count : 0
 
-microglia_state : {
-    active: "active",
-    resting: "resting"
-}
-
-neuron_state : {
-    "healthy": "healthy",
-    "damaged": "damaged",
-    "dead": "dead"
-}
-
-cyto_state : {
-    pro_inflammatory: "pro_inflammatory",
-    non_inflammatory: "non_inflammatory"
-}
-
 #Neurotransmitter variables
+neurotrans_max_age : 8
 neurotrans_initial_availability : 5
 precursor_boost: 5
 neurotrans_decrease : {
@@ -80,7 +79,6 @@ neurotrans_decrease : {
     damaged : 3,
     dead: 5
 }
-neurotrans_max_age : 8
 
 # Model variables
 world.width: 100
@@ -92,15 +90,3 @@ gut_log_file: 'output/gut_log.csv'
 brain_log_file: 'output/brain_log.csv'
 log_file: 'output/log_file.csv'
 seed: 42
-
-
-# Bacterial states
-bacteria_initial_state : "HIGH"
-bacteria_energy_deltas: {
-    "fission": -3,
-    "ferment": 3,
-    "consume": 2,
-    "bacteriocins": -3,
-    "move": -1,
-    "idle": -1
-}
