@@ -78,7 +78,7 @@ class Neuron(GridAgent):
             else:
                 self.neurotrans_availability[neurotransmitter] = (max(0,
                     self.neurotrans_availability[neurotransmitter] -
-                    Simulation.params["neurotrans_decrease"][self.state]*self.neurotrans_rate[neurotransmitter]))
+                    Simulation.params["neurotrans_decrease"][self.state] * self.neurotrans_rate[neurotransmitter]))
 
         # Uses a nearby precursor to make more neurotransmitters available
         precursor = self.percept_precursor()

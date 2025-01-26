@@ -23,7 +23,7 @@ class Treatment(GridAgent):
 
     # Treatment step function
     def step(self):
-        if Simulation.model.barrier_impermeability < Simulation.model.barrier_permeability_threshold_start:
+        if Simulation.model.epithelial_barrier_impermeability < Simulation.model.epithelial_barrier_permeability_threshold_start:
             def adjust_bacteria(good_bacteria_factor, pathogenic_bacteria_factor):
                 to_add = int((Simulation.params["microbiota_good_bacteria_class"] * np.random.uniform(0, good_bacteria_factor)) / 100)
                 Simulation.model.microbiota_good_bacteria_class += to_add

@@ -114,6 +114,6 @@ class Log:
         self.tau_oligomer_gut = counts["tau_oligomer_gut"]
         self.microbiota_good_bacteria_class = Simulation.model.microbiota_good_bacteria_class
         self.microbiota_pathogenic_bacteria_class = Simulation.model.microbiota_pathogenic_bacteria_class
-        self.barrier_impermeability = Simulation.model.barrier_impermeability
+        self.barrier_impermeability = Simulation.model.epithelial_barrier_impermeability
 
         Simulation.model.data_set.log(tick)

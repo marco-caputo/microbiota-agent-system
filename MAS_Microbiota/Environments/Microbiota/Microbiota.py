@@ -43,9 +43,10 @@ class Microbiota(GridEnvironment):
 
     def move_resources_to_brain(self, resources_to_move):
         for agent in resources_to_move:
-            Simulation.model.gutBrainInterface.transfer_to_bloodstream(agent)
-            #TODO: introduce the BBB
-            #TODO: introduce vagous nerve interface
+            if (type(agent) in [SCFA, Precursor, Substrate]):
+                Simulation.model.gutBrainInterface.transfer_to_bloodstream(agent)
+            elif isinstance(agent, Neurotransmitter):
+                Simulation.model.gutBrainInterface.transfer_to_enteric_nervous_system(agent)
             #TODO: add agents to restorer
             #TODO: count bacteria in the brain
 

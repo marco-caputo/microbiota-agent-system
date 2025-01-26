@@ -23,7 +23,7 @@ class ExternalInput(GridAgent):
 
     # External input step function
     def step(self):
-        if Simulation.model.barrier_impermeability >= Simulation.params["epithelial_barrier"]["permeability_threshold_stop"]:
+        if Simulation.model.epithelial_barrier_impermeability >= Simulation.params["epithelial_barrier"]["permeability_threshold_stop"]:
             def adjust_bacteria(good_bacteria_factor, pathogenic_bacteria_factor):
                 to_remove = int((Simulation.model.microbiota_good_bacteria_class *
                                  Simulation.model.rng.uniform(0, good_bacteria_factor)) / 100)

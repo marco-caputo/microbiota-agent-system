@@ -67,6 +67,25 @@ AGENT_MAPPING = {
             setattr(agent, "energy_level", EnergyLevel(data[9])),
         ),
     },
+    SCFA.TYPE: {
+        "constructor": lambda uid, pt, context, data: SCFA(uid[0], uid[2], SCFAType(data[1]), pt, context),
+        "attributes": lambda agent, data: (
+            setattr(agent, "toRemove", data[4]),
+        ),
+    },
+    Substrate.TYPE: {
+        "constructor": lambda uid, pt, context, data: Substrate(uid[0], uid[2], SubstrateType(data[1]), pt, context),
+        "attributes": lambda agent, data: (
+            setattr(agent, "toRemove", data[4]),
+        ),
+    },
+    Neurotransmitter.TYPE: {
+        "constructor": lambda uid, pt, context, data: Neurotransmitter(uid[0], uid[2], NeurotransmitterType(data[1]), pt, context),
+        "attributes": lambda agent, data: (
+            setattr(agent, "toMove", data[4]),
+            setattr(agent, "toRemove", data[5]),
+        ),
+    },
 }
 
 # Generalized restore function

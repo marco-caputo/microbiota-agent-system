@@ -19,15 +19,20 @@ class Neurotransmitter(ResourceAgent):
     def __init__(self, local_id: int, rank: int, neurotrans_type : NeurotransmitterType, pt: dpt, context):
         super().__init__(local_id=local_id, type=Neurotransmitter.TYPE, rank=rank, pt=pt, context=context)
         self.neurotrans_type = neurotrans_type
+        self.toMove = False
         self.age = 0
 
     def save(self) -> Tuple:
-        return (self.uid, self.neurotrans_type, self.pt.coordinates, self.context)
+        return (self.uid, self.neurotrans_type, self.pt.coordinates, self.context, self.toMove, self.toRemove)
 
-    # Neurotransmitter step function
     def step(self):
         self.random_movement()
         self.age += 1
-        if self.age > Simulation.params["neurotrans_max_age"]:
+
+        # Check if the neurotransmitter should be removed or moved according to its age
+        if self.age == Simulation.params["neurotrans_max_age"] and self.context == 'microbiota' and \
+            Simulation.model.rng.randint(0, 100) < Simulation.params["neurotrans_reuptake_percentage"]:
+                self.toMove = True
+        elif self.age > Simulation.params["neurotrans_max_age"]:
             self.toRemove = True
 

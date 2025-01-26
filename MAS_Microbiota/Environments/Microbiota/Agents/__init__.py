@@ -1,3 +1,3 @@
 from .Bacterium import EnergyLevel, Bacterium
 from .SCFA import SCFAType, SCFA
-from .Substrate import Substrate
+from .Substrate import SubstrateType, Substrate

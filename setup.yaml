@@ -1,9 +1,15 @@
 # Barrier variables
 epithelial_barrier: {
-    impermeability: 50,
+    initial_impermeability: 50,
     permeability_threshold: 25,
     permeability_threshold_stop: 20,
     permeability_threshold_start: 30
+}
+blood_brain_barrier: {
+    initial_impermeability: 50,
+    minimum_impermeability: 1,
+    maximum_impermeability: 99,
+    scfa_permeability_influence: 1
 }
 
 # Microbiota variables
@@ -72,12 +78,13 @@ tau_oligomer_brain.count : 0
 
 #Neurotransmitter variables
 neurotrans_max_age : 8
+neurotrans_reuptake_percentage : 50
 neurotrans_initial_availability : 5
-precursor_boost: 5
+neurotrans_rate_increase : 3
+precursor_boost: 10
 neurotrans_decrease : {
     healthy : 1,
-    damaged : 3,
-    dead: 5
+    damaged : 3
 }
 
 # Model variables

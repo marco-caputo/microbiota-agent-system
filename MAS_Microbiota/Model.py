@@ -125,9 +125,9 @@ class Model():
         self.microbiota_diversity_threshold = Simulation.params["microbiota_diversity_threshold"]
 
     def init_gut_brain_interface_params(self):
-        self.barrier_impermeability = Simulation.params["epithelial_barrier"]["impermeability"]
-        self.barrier_permeability_threshold_stop = Simulation.params["barrier_permeability_threshold_stop"]
-        self.barrier_permeability_threshold_start = Simulation.params["barrier_permeability_threshold_start"]
+        self.epithelial_barrier_impermeability = Simulation.params["epithelial_barrier"]["initial_impermeability"]
+        self.epithelial_barrier_permeability_threshold_stop = Simulation.params["barrier_permeability_threshold_stop"]
+        self.epithelial_barrier_permeability_threshold_start = Simulation.params["barrier_permeability_threshold_start"]
 
     def init_brain_params(self):
         """

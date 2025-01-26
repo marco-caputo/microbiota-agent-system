@@ -32,10 +32,10 @@ class Gut(GridEnvironment):
         if (Simulation.model.microbiota_good_bacteria_class - Simulation.model.microbiota_pathogenic_bacteria_class
                 <= Simulation.model.microbiota_diversity_threshold):
             value_decreased = int((Simulation.params["barrier_impermeability"] * np.random.randint(0, 6)) / 100)
-            if Simulation.model.barrier_impermeability - value_decreased <= 0:
-                Simulation.model.barrier_impermeability = 0
+            if Simulation.model.epithelial_barrier_impermeability - value_decreased <= 0:
+                Simulation.model.epithelial_barrier_impermeability = 0
             else:
-                Simulation.model.barrier_impermeability = Simulation.model.barrier_impermeability - value_decreased
+                Simulation.model.epithelial_barrier_impermeability = Simulation.model.epithelial_barrier_impermeability - value_decreased
             number_of_aep_to_hyperactivate = value_decreased
             cont = 0
             for agent in self.context.agents(agent_type=AEP.TYPE):
@@ -45,10 +45,10 @@ class Gut(GridEnvironment):
                 elif cont == number_of_aep_to_hyperactivate:
                     break
         else:
-            if Simulation.model.barrier_impermeability < Simulation.params["barrier_impermeability"]:
+            if Simulation.model.epithelial_barrier_impermeability < Simulation.params["barrier_impermeability"]:
                 value_increased = int((Simulation.params["barrier_impermeability"] * np.random.randint(0, 4)) / 100)
-                if (Simulation.model.barrier_impermeability + value_increased) <= Simulation.params["barrier_impermeability"]:
-                    Simulation.model.barrier_impermeability = Simulation.model.barrier_impermeability + value_increased
+                if (Simulation.model.epithelial_barrier_impermeability + value_increased) <= Simulation.params["barrier_impermeability"]:
+                    Simulation.model.epithelial_barrier_impermeability = Simulation.model.epithelial_barrier_impermeability + value_increased
 
 
     def agents_to_remove(self):
