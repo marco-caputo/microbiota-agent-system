@@ -6,6 +6,7 @@ from repast4py import context as ctx
 from repast4py import space, schedule, logging, random
 from repast4py.space import DiscretePoint as dpt
 
+from MAS_Microbiota.Environments.Microbiota.Microbiota import Microbiota
 from MAS_Microbiota.GUI import GUI
 from MAS_Microbiota.Utils import *
 from MAS_Microbiota.Log import Log
@@ -54,7 +55,7 @@ class Model():
         box = space.BoundingBox(0, Simulation.params['world.width'] - 1, 0, Simulation.params['world.height'] - 1, 0, 0)
 
         # Create shared contexts and grid for the environments
-        for Env in [Gut, Brain]:
+        for Env in [Gut, Brain, Microbiota]:
             context = ctx.SharedContext(comm)
             grid = self.init_grid(Env.NAME+'_grid', box, context)
             self.envs[Env.NAME] = Env(context, grid)

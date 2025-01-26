@@ -10,6 +10,8 @@ from MAS_Microbiota.Environments.Microbiota.Agents.Substrate import Substrate
 
 class Microbiota(GridEnvironment):
 
+    NAME = 'microbiota'
+
     def __init__(self, context: GridEnvironment, grid: GridAgent):
         super().__init__(context, grid)
 

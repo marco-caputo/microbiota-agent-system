@@ -57,7 +57,7 @@ class ResourceAgent(GridAgent):
             elif Simulation.model.barrier_impermeability < Simulation.params["barrier_impermeability"]:
                 percentage_threshold = int((Simulation.model.barrier_impermeability *
                                             Simulation.params["barrier_impermeability"]) / 100)
-                choice = Simulation.model.rng.randint(0, 100)
+                choice = Simulation.model.rng.integers(0, 100)
                 if choice > percentage_threshold:
                     self.toMove = True
 
