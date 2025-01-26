@@ -14,7 +14,7 @@ class Brain(GridEnvironment):
         super().__init__(context, grid)
 
     @staticmethod
-    def agent_types():
+    def initial_agents():
         return [
                 ('neuron_healthy.count', Neuron, NeuronState.HEALTHY),
                 ('neuron_damaged.count', Neuron, NeuronState.DAMAGED),

@@ -1,5 +1,6 @@
 from typing import List
 
+import numpy as np
 import pygame
 from mpi4py import MPI
 from repast4py import context as ctx
@@ -9,12 +10,14 @@ from repast4py.space import DiscretePoint as dpt
 from MAS_Microbiota.GUI import GUI
 from MAS_Microbiota.Utils import *
 from MAS_Microbiota.Log import Log
+from MAS_Microbiota.Environments.Gut.Gut import Gut
+from MAS_Microbiota.Environments.Brain.Brain import Brain
+from MAS_Microbiota.Environments.Microbiota.Microbiota import Microbiota
 from MAS_Microbiota.Environments.GutBrainInterface import GutBrainInterface
+from MAS_Microbiota.Environments.Microbiota.Agents import *
 from MAS_Microbiota.Environments.Gut.Agents import *
 from MAS_Microbiota.Environments.Brain.Agents import *
 from MAS_Microbiota.AgentRestorer import restore_agent
-from MAS_Microbiota.Environments.Gut.Gut import Gut
-from MAS_Microbiota.Environments.Brain.Brain import Brain
 
 
 class Model():
@@ -31,13 +34,14 @@ class Model():
         self.init_schedule(comm)
         self.init_rng()
 
-        self.init_microbiota_params() #TODO: Agire qui: I parametri su batteri patogeni e buoni devono coincidere con il conteggio degli agenti. Inoltre si potrebbe anche pensare di non usare un threshold dei batteri ma piuttosto dell'infiammazione.
+        self.update_microbiota_params()
         self.init_brain_params()
 
         # Initialize the agents
         self.added_agents_id = 0
-        self.distribute_all_agents(Gut.agent_types(), 'gut')
-        self.distribute_all_agents(Brain.agent_types(), 'brain')
+        self.distribute_all_agents(Gut.initial_agents(), Gut.NAME)
+        self.distribute_all_agents(Brain.initial_agents(), Brain.NAME)
+        self.distribute_all_agents(Microbiota.initial_agents(), Microbiota.NAME) #TODO: magari distribuiamo abtteri della stessa famiglia vicini
 
         # Synchronize the contexts
         for _, env in self.envs.items(): env.context.synchronize(restore_agent)
@@ -54,7 +58,7 @@ class Model():
         box = space.BoundingBox(0, Simulation.params['world.width'] - 1, 0, Simulation.params['world.height'] - 1, 0, 0)
 
         # Create shared contexts and grid for the environments
-        for Env in [Gut, Brain]:
+        for Env in [Microbiota, Gut, Brain]:
             context = ctx.SharedContext(comm)
             grid = self.init_grid(Env.NAME+'_grid', box, context)
             self.envs[Env.NAME] = Env(context, grid)
@@ -92,6 +96,8 @@ class Model():
         The schedule represents the order in which the model's events are executed in each tick of the simulation.
         """
         self.runner = schedule.init_schedule_runner(comm)
+        self.runner.schedule_repeating_event(1, 1, self.envs[Microbiota.NAME].step)
+        self.runner.schedule_repeating_event(1, 1, self.update_microbiota_params)
         self.runner.schedule_repeating_event(1, 1, self.envs[Gut.NAME].step)
         self.runner.schedule_repeating_event(1, 2, self.envs[Gut.NAME].microbiota_dysbiosis_step)
         self.runner.schedule_repeating_event(1, 6, self.teleport_resources_step)
@@ -106,7 +112,7 @@ class Model():
         Initializes the random number generators for the model.
         """
         random.seed = Simulation.params['seed']
-        self.rng = random.default_rng
+        self.rng: np.random.Generator = random.default_rng
 
     def init_log(self):
         """
@@ -116,13 +122,12 @@ class Model():
         loggers = logging.create_loggers(self.counts, op=MPI.SUM, rank=self.rank)
         self.data_set = logging.ReducingDataSet(loggers, self.comm, Simulation.params['log_file'], buffer_size=1)
 
-    def init_microbiota_params(self):
+    def update_microbiota_params(self):
         """
-        Initializes the microbiota parameters for the model.
+        Updates the microbiota parameters for the model.
         """
-        self.microbiota_good_bacteria_class = Simulation.params["microbiota_good_bacteria_class"]
-        self.microbiota_pathogenic_bacteria_class = Simulation.params["microbiota_pathogenic_bacteria_class"]
-        self.microbiota_diversity_threshold = Simulation.params["microbiota_diversity_threshold"]
+        self.microbiota_good_bacteria_count = self.envs[Microbiota.NAME].good_bacteria_count
+        self.microbiota_pathogenic_bacteria_count = self.envs[Microbiota.NAME].pathogenic_bacteria_count
 
     def init_gut_brain_interface_params(self):
         self.epithelial_barrier_impermeability = Simulation.params["epithelial_barrier"]["initial_impermeability"]
@@ -153,7 +158,7 @@ class Model():
     def create_agents(self, agent_class, pp_count, state, env_name):
         for j in range(pp_count):
             pt = self.envs[env_name].grid.get_random_local_pt(self.rng)
-            if agent_class in [Neuron, Microglia, CleavedProtein, Oligomer, Protein,  ExternalInput, Treatment]:
+            if agent_class in [Neuron, Microglia, CleavedProtein, Oligomer, Protein,  ExternalInput, Treatment, SCFA]:
                 agent = agent_class(self.added_agents_id + j, self.rank, state, pt, env_name)
             else:
                 # For agents without special state
@@ -187,7 +192,7 @@ class Model():
     # Function to move the cleaved protein agents
     def teleport_resources_step(self):
         self.teleport_cleaved_protein_step()
-        #TODO a regime: self.envs[Microbiota.NAME].teleport_resources_step()
+        self.envs[Microbiota.NAME].teleport_resources_step()
 
     def teleport_cleaved_protein_step(self):
         for env_name in [Gut.NAME, Brain.NAME]:

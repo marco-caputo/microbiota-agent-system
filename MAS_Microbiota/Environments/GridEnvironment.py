@@ -19,7 +19,7 @@ class GridEnvironment(ABC):
 
     @staticmethod
     @abstractmethod
-    def agent_types() -> Tuple[str, Agent, Any]:
+    def initial_agents() -> Tuple[str, Agent, Any]:
         """
         Returns the agent types that are used in the environment.
         This method should return a tuple with the following elements:

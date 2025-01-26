@@ -1,23 +1,47 @@
-# Barrier variables
-epithelial_barrier: {
-    initial_impermeability: 50,
-    permeability_threshold: 25,
-    permeability_threshold_stop: 20,
-    permeability_threshold_start: 30
-}
-blood_brain_barrier: {
-    initial_impermeability: 50,
-    minimum_impermeability: 1,
-    maximum_impermeability: 99,
-    scfa_permeability_influence: 1
-}
+# General
+stop.at : 500
+gut_log_file: 'output/gut_log.csv'
+brain_log_file: 'output/brain_log.csv'
+log_file: 'output/log_file.csv'
+seed: 42
 
-# Microbiota variables
-microbiota_good_bacteria_class : 30000
-microbiota_pathogenic_bacteria_class : 10000
-microbiota_diversity_threshold : 10000
+# Model
+world.width: 100
+world.height: 100
 
-# Bacterial states
+# Microbiota
+microbiota_diversity_threshold : 100
+
+bifidobacteriaceae.count : 10
+
+scfa_acetate.count : 10
+scfa_propionate.count : 10
+scfa_butyrate.count : 10
+
+substrate_fiber.count : 10
+substrate_carbohydrates.count : 10
+substrate_sugar.count : 10
+
+# Gut
+aep_enzyme.count : 50
+tau_proteins.count : 300
+alpha_syn_proteins.count : 300
+tau_oligomers_gut.count : 0
+alpha_syn_oligomers_gut.count : 0
+
+# Brain
+active_microglia.count: 0
+resting_microglia.count: 50
+neuron_healthy.count: 300
+neuron_damaged.count: 0
+neuron_dead.count: 0
+cytokine.count : 0
+alpha_syn_cleaved_brain.count : 0
+alpha_syn_oligomer_brain.count : 0
+tau_cleaved_brain.count : 0
+tau_oligomer_brain.count : 0
+
+# Bacteria
 bacteria_initial_state : "HIGH"
 bacteria_energy_deltas: {
     "fission": -3,
@@ -28,7 +52,7 @@ bacteria_energy_deltas: {
     "idle": -1
 }
 
-# Diet variables
+# Diet
 diet_substrates : {
     "balanced": {
         "fiber": 50,
@@ -47,53 +71,42 @@ diet_substrates : {
     }
 }
 
-# To start the dysbyosis
-external_input_diet.count : 10
-external_input_antibiotics.count : 10
-external_input_stress.count : 10
+# Epithelial Barrier
+epithelial_barrier: {
+    initial_impermeability: 50,
+    permeability_threshold: 25,
+    permeability_threshold_stop: 20,
+    permeability_threshold_start: 30
+}
 
-# The treatment to use
-treatment : True
-treatment_diet.count : 10
-treatment_probiotics.count : 10
+# Blood Brain Barrier
+blood_brain_barrier: {
+    initial_impermeability: 50,
+    minimum_impermeability: 1,
+    maximum_impermeability: 99,
+    scfa_permeability_influence: 1
+}
 
-# The agents
-aep_enzyme.count : 50
-tau_proteins.count : 300
-alpha_syn_proteins.count : 300
-tau_oligomers_gut.count : 0
-alpha_syn_oligomers_gut.count : 0
-
-# Nervous system variables
-active_microglia.count: 0
-resting_microglia.count: 50
-neuron_healthy.count: 300
-neuron_damaged.count: 0
-neuron_dead.count: 0
-cytokine.count : 0
-alpha_syn_cleaved_brain.count : 0
-alpha_syn_oligomer_brain.count : 0
-tau_cleaved_brain.count : 0
-tau_oligomer_brain.count : 0
-
-#Neurotransmitter variables
-neurotrans_max_age : 8
-neurotrans_reuptake_percentage : 50
-neurotrans_initial_availability : 5
-neurotrans_rate_increase : 3
-precursor_boost: 10
-neurotrans_decrease : {
+#Neurotransmitters
+neurotrans_max_age : 8                  # Number of steps before neurotransmitter is removed
+neurotrans_reuptake_percentage : 50     # Percentage of neurotransmitter in gut that are uptaken in ENS
+neurotrans_initial_availability : 5     # Initial neurotransmitter availability in each neuron
+precursor_boost: 10                     # Boost in neurotransmitter availability for a neuron when precursor is available
+neurotrans_rate_increase : 3            # Increase in neurotransmitter production rate for a neuron when stimulated by vagus nerve
+neurotrans_decrease : {                 # Decrease in neurotransmitter availability in a neuron at each step
     healthy : 1,
     damaged : 3
 }
 
-# Model variables
-world.width: 100
-world.height: 100
+# External input
+external_input_diet.count : 10          # Number of diet input agents at start of simulation
+external_input_antibiotics.count : 10   # Number of antibiotics input agents at start of simulation
+external_input_stress.count : 10        # Number of stress input agents at start of simulation
+external_input_antibiotics_factor : 3   # Percentage of bacteria killed by antibiotics
+external_input_stress_factor : 3        # Percentage of pathogenic bacteria boosted by stress
 
-# General variables
-stop.at : 500
-gut_log_file: 'output/gut_log.csv'
-brain_log_file: 'output/brain_log.csv'
-log_file: 'output/log_file.csv'
-seed: 42
+# Treatment
+treatment : True                        # Whether treatment is enabled
+treatment_diet.count : 10               # Number of diet input agents at start of simulation
+treatment_probiotics.count : 10         # Number of probiotic input agents at start of simulation
+treatment_probiotics_factor : 3         # Percentage of beneficial bacteria introduced by probiotic treatment

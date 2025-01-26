@@ -13,7 +13,7 @@ class Gut(GridEnvironment):
         super().__init__(context, grid)
 
     @staticmethod
-    def agent_types():
+    def initial_agents():
         return [
             ('aep_enzyme.count', AEP, None),
             ('tau_proteins.count', Protein, ProteinName.TAU),
@@ -29,9 +29,10 @@ class Gut(GridEnvironment):
 
     # Function to check if the microbiota is dysbiotic and adjust the barrier impermeability
     def microbiota_dysbiosis_step(self):
-        if (Simulation.model.microbiota_good_bacteria_class - Simulation.model.microbiota_pathogenic_bacteria_class
-                <= Simulation.model.microbiota_diversity_threshold):
-            value_decreased = int((Simulation.params["barrier_impermeability"] * np.random.randint(0, 6)) / 100)
+        if (Simulation.model.microbiota_good_bacteria_count - Simulation.model.microbiota_pathogenic_bacteria_count
+                <= Simulation.params["microbiota_diversity_threshold"]):
+            value_decreased = int((Simulation.params["epithelial_barrier"]["initial_impermeability"] *
+                                   np.random.randint(0, 6)) / 100)
             if Simulation.model.epithelial_barrier_impermeability - value_decreased <= 0:
                 Simulation.model.epithelial_barrier_impermeability = 0
             else:
@@ -45,9 +46,9 @@ class Gut(GridEnvironment):
                 elif cont == number_of_aep_to_hyperactivate:
                     break
         else:
-            if Simulation.model.epithelial_barrier_impermeability < Simulation.params["barrier_impermeability"]:
-                value_increased = int((Simulation.params["barrier_impermeability"] * np.random.randint(0, 4)) / 100)
-                if (Simulation.model.epithelial_barrier_impermeability + value_increased) <= Simulation.params["barrier_impermeability"]:
+            if Simulation.model.epithelial_barrier_impermeability < Simulation.params["epithelial_barrier"]["initial_impermeability"]:
+                value_increased = int((Simulation.params["epithelial_barrier"]["initial_impermeability"] * np.random.randint(0, 4)) / 100)
+                if (Simulation.model.epithelial_barrier_impermeability + value_increased) <= Simulation.params["epithelial_barrier"]["initial_impermeability"]:
                     Simulation.model.epithelial_barrier_impermeability = Simulation.model.epithelial_barrier_impermeability + value_increased
 
 
