@@ -1,9 +1,7 @@
-from typing import Callable
-
 import pygame
-
 from .Environments.Brain.Brain import Brain
 from .Environments.Gut.Gut import Gut
+from .Environments.Microbiota.Microbiota import Microbiota
 from .Utils import Simulation
 from MAS_Microbiota.Environments.Brain.Agents import *
 from MAS_Microbiota.Environments.Gut.Agents import *
@@ -20,6 +18,7 @@ class GUI:
         self.running = True
         self.gut_context = envs[Gut.NAME].context
         self.brain_context = envs[Brain.NAME].context
+        self.microbiota_context = envs[Microbiota.NAME].context
         self.grid_width, self.grid_height = Simulation.params['world.width'], Simulation.params['world.height']
         self.paused = False
         self.button_rects = []
@@ -55,7 +54,7 @@ class GUI:
     # Function to update the screen after each tick
     def update(self):
         # Update contexts
-        self.gut_context, self.brain_context = self.envs[Gut.NAME].context, self.envs[Brain.NAME].context
+        self.gut_context, self.brain_context, self.microbiota_context = self.envs[Gut.NAME].context, self.envs[Brain.NAME].context, self.envs[Microbiota.NAME].context
 
         # Fill background and draw border rectangle
         self.screen.fill(self.background_color)
@@ -64,21 +63,26 @@ class GUI:
 
         # Draw section titles
         text_y_position = inner_rect[1] - 30
-        self._draw_centered_text("Gut Environment", self.width // 4, text_y_position)
-        self._draw_centered_text("Brain Environment", 3 * self.width // 4, text_y_position)
+        self._draw_centered_text("Microbiota Environment", self.width // 6, text_y_position)
+        self._draw_centered_text("Gut Environment", self.width // 2, text_y_position)
+        self._draw_centered_text("Brain Environment", 5 * self.width // 6, text_y_position)
 
         # Draw separating line
         pygame.draw.line(self.screen, (0, 0, 0),
-                         (self.width // 2, inner_rect[1]),
-                         (self.width // 2, inner_rect[1] + inner_rect[3]), 4)
-
+                         (self.width // 3, inner_rect[1]),
+                         (self.width // 3, inner_rect[1] + inner_rect[3]), 4)
+        pygame.draw.line(self.screen, (0, 0, 0),
+                         (2 * self.width // 3, inner_rect[1]),
+                         (2 * self.width // 3, inner_rect[1] + inner_rect[3]), 4)
         # Draw buttons and legend
         self.draw_buttons()
         self.draw_legend()
 
         # Define areas and draw agents
-        gut_area = (50, 50, self.width // 2 - 47, self.height - 300)
-        brain_area = (self.width // 2 + 3, 50, self.width // 2 - 50, self.height - 300)
+        microbiota_area = (50, 50, self.width // 3 - 47, self.height - 300)
+        gut_area = (self.width // 3 + 3, 50, self.width // 3 - 50, self.height - 300)
+        brain_area = (2 * self.width // 3 + 3, 50, self.width // 3 - 50, self.height - 300)
+        self._draw_context_agents(self.microbiota_context, microbiota_area)
         self._draw_context_agents(self.gut_context, gut_area)
         self._draw_context_agents(self.brain_context, brain_area)
 
