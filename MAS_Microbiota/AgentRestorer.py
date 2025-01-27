@@ -10,18 +10,18 @@ agent_cache = {}
 # Mapping agent types to their constructors and specific attributes
 AGENT_MAPPING = {
     Microglia.TYPE: {
-        "constructor": lambda uid, pt, context, data: Microglia(uid[0], uid[2], data[1], pt, context),
-        "attributes": lambda agent, data: setattr(agent, "state", data[1]),
+        "constructor": lambda uid, pt, context, data: Microglia(uid[0], uid[2], MicrogliaState(data[1]), pt, context),
+        "attributes": lambda agent, data: setattr(agent, "state", MicrogliaState(data[1])),
     },
     Neuron.TYPE: {
-        "constructor": lambda uid, pt, context, data: Neuron(uid[0], uid[2], data[1], pt, context),
+        "constructor": lambda uid, pt, context, data: Neuron(uid[0], uid[2], pt, context),
         "attributes": lambda agent, data: (
-            setattr(agent, "state", data[1]),
+            setattr(agent, "state", NeuronState(data[1])),
             setattr(agent, "toRemove", data[3])
         ),
     },
     CleavedProtein.TYPE: {
-        "constructor": lambda uid, pt, context, data: CleavedProtein(uid[0], uid[2], data[1], pt, context),
+        "constructor": lambda uid, pt, context, data: CleavedProtein(uid[0], uid[2], ProteinName(data[1]), pt, context),
         "attributes": lambda agent, data: (
             setattr(agent, "toAggregate", data[3]),
             setattr(agent, "alreadyAggregate", data[4]),
@@ -29,32 +29,32 @@ AGENT_MAPPING = {
         ),
     },
     Oligomer.TYPE: {
-        "constructor": lambda uid, pt, context, data: Oligomer(uid[0], uid[2], data[1], pt, context),
+        "constructor": lambda uid, pt, context, data: Oligomer(uid[0], uid[2], ProteinName(data[1]), pt, context),
         "attributes": lambda agent, data: (
             setattr(agent, "toRemove", data[3]),
         ),
     },
     Cytokine.TYPE: {
         "constructor": lambda uid, pt, context, data: Cytokine(uid[0], uid[2], pt, context),
-        "attributes": lambda agent, data: setattr(agent, "state", data[1]),
+        "attributes": lambda agent, data: setattr(agent, "state", MicrogliaState(data[1])),
     },
     AEP.TYPE: {
         "constructor": lambda uid, pt, context, data: AEP(uid[0], uid[2], pt, context),
-        "attributes": lambda agent, data: setattr(agent, "state", data[1]),
+        "attributes": lambda agent, data: setattr(agent, "state", AEPState(data[1])),
     },
     Protein.TYPE: {
-        "constructor": lambda uid, pt, context, data: Protein(uid[0], uid[2], data[1], pt, context),
+        "constructor": lambda uid, pt, context, data: Protein(uid[0], uid[2], ProteinName(data[1]), pt, context),
         "attributes": lambda agent, data: (
             setattr(agent, "toCleave", data[3]),
             setattr(agent, "toRemove", data[4]),
         ),
     },
     ExternalInput.TYPE: {
-        "constructor": lambda uid, pt, context, _: ExternalInput(uid[0], uid[2], pt, context),
+        "constructor": lambda uid, pt, context, data: ExternalInput(uid[0], uid[2], ExternalInputType(data[1]), pt, context),
         "attributes": lambda agent, _: None,
     },
     Treatment.TYPE: {
-        "constructor": lambda uid, pt, context, _: Treatment(uid[0], uid[2], pt, context),
+        "constructor": lambda uid, pt, context, data: Treatment(uid[0], uid[2], TreatmentType(data[1]), pt, context),
         "attributes": lambda agent, _: None,
     },
     Bacterium.TYPE: {
@@ -65,6 +65,25 @@ AGENT_MAPPING = {
             setattr(agent, "fermentedPrecursor", data[7]),
             setattr(agent, "toRemove", data[8]),
             setattr(agent, "energy_level", EnergyLevel(data[9])),
+        ),
+    },
+    SCFA.TYPE: {
+        "constructor": lambda uid, pt, context, data: SCFA(uid[0], uid[2], SCFAType(data[1]), pt, context),
+        "attributes": lambda agent, data: (
+            setattr(agent, "toRemove", data[4]),
+        ),
+    },
+    Substrate.TYPE: {
+        "constructor": lambda uid, pt, context, data: Substrate(uid[0], uid[2], SubstrateType(data[1]), pt, context),
+        "attributes": lambda agent, data: (
+            setattr(agent, "toRemove", data[4]),
+        ),
+    },
+    Neurotransmitter.TYPE: {
+        "constructor": lambda uid, pt, context, data: Neurotransmitter(uid[0], uid[2], NeurotransmitterType(data[1]), pt, context),
+        "attributes": lambda agent, data: (
+            setattr(agent, "toMove", data[4]),
+            setattr(agent, "toRemove", data[5]),
         ),
     },
 }

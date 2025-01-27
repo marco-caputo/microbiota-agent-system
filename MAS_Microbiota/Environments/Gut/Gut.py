@@ -13,39 +13,43 @@ class Gut(GridEnvironment):
         super().__init__(context, grid)
 
     @staticmethod
-    def agent_types():
+    def initial_agents():
         return [
             ('aep_enzyme.count', AEP, None),
-            ('tau_proteins.count', Protein, Simulation.params["protein_name"]["tau"]),
-            ('alpha_syn_proteins.count', Protein, Simulation.params["protein_name"]["alpha_syn"]),
-            ('external_input.count', ExternalInput, None),
-            ('treatment_input.count', Treatment, None),
-            ('alpha_syn_oligomers_gut.count', Oligomer, Simulation.params["protein_name"]["alpha_syn"]),
-            ('tau_oligomers_gut.count', Oligomer, Simulation.params["protein_name"]["tau"]),
+            ('tau_proteins.count', Protein, ProteinName.TAU),
+            ('alpha_syn_proteins.count', Protein, ProteinName.ALPHA_SYN),
+            ('external_input_diet.count', ExternalInput, ExternalInputType.DIET),
+            ('external_input_antibiotics.count', ExternalInput, ExternalInputType.ANTIBIOTICS),
+            ('external_input_stress.count', ExternalInput, ExternalInputType.STRESS),
+            ('treatment_diet.count', Treatment, TreatmentType.DIET),
+            ('treatment_probiotics.count', Treatment, TreatmentType.PROBIOTICS),
+            ('tau_oligomers_gut.count', Oligomer, ProteinName.TAU),
+            ('alpha_syn_oligomers_gut.count', Oligomer, ProteinName.ALPHA_SYN)
         ]
 
     # Function to check if the microbiota is dysbiotic and adjust the barrier impermeability
     def microbiota_dysbiosis_step(self):
-        if (Simulation.model.microbiota_good_bacteria_class - Simulation.model.microbiota_pathogenic_bacteria_class
-                <= Simulation.model.microbiota_diversity_threshold):
-            value_decreased = int((Simulation.params["barrier_impermeability"] * np.random.randint(0, 6)) / 100)
-            if Simulation.model.barrier_impermeability - value_decreased <= 0:
-                Simulation.model.barrier_impermeability = 0
+        if (Simulation.model.microbiota_good_bacteria_count - Simulation.model.microbiota_pathogenic_bacteria_count
+                <= Simulation.params["microbiota_diversity_threshold"]):
+            value_decreased = int((Simulation.params["epithelial_barrier"]["initial_impermeability"] *
+                                   np.random.randint(0, 6)) / 100)
+            if Simulation.model.epithelial_barrier_impermeability - value_decreased <= 0:
+                Simulation.model.epithelial_barrier_impermeability = 0
             else:
-                Simulation.model.barrier_impermeability = Simulation.model.barrier_impermeability - value_decreased
+                Simulation.model.epithelial_barrier_impermeability = Simulation.model.epithelial_barrier_impermeability - value_decreased
             number_of_aep_to_hyperactivate = value_decreased
             cont = 0
             for agent in self.context.agents(agent_type=AEP.TYPE):
-                if agent.state == Simulation.params["aep_state"]["active"] and cont < number_of_aep_to_hyperactivate:
-                    agent.state = Simulation.params["aep_state"]["hyperactive"]
+                if agent.state == AEPState.ACTIVE and cont < number_of_aep_to_hyperactivate:
+                    agent.state = AEPState.HYPERACTIVE
                     cont += 1
                 elif cont == number_of_aep_to_hyperactivate:
                     break
         else:
-            if Simulation.model.barrier_impermeability < Simulation.params["barrier_impermeability"]:
-                value_increased = int((Simulation.params["barrier_impermeability"] * np.random.randint(0, 4)) / 100)
-                if (Simulation.model.barrier_impermeability + value_increased) <= Simulation.params["barrier_impermeability"]:
-                    Simulation.model.barrier_impermeability = Simulation.model.barrier_impermeability + value_increased
+            if Simulation.model.epithelial_barrier_impermeability < Simulation.params["epithelial_barrier"]["initial_impermeability"]:
+                value_increased = int((Simulation.params["epithelial_barrier"]["initial_impermeability"] * np.random.randint(0, 4)) / 100)
+                if (Simulation.model.epithelial_barrier_impermeability + value_increased) <= Simulation.params["epithelial_barrier"]["initial_impermeability"]:
+                    Simulation.model.epithelial_barrier_impermeability = Simulation.model.epithelial_barrier_impermeability + value_increased
 
 
     def agents_to_remove(self):
@@ -86,7 +90,7 @@ class Gut(GridEnvironment):
 
     def move_oligomers_to_brain(self, oligomers_to_move):
         for agent in oligomers_to_move:
-            Simulation.model.gutBrainInterface.transfer_from_gut_to_brain(agent)
+            Simulation.model.gutBrainInterface.transfer_to_bloodstream(agent)
 
 
     def remove_proteins_and_add_cleaved_proteins(self, removed_ids, protein_to_remove):

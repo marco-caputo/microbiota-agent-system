@@ -1,10 +1,16 @@
+from enum import IntEnum
 from typing import Tuple
 from repast4py.space import DiscretePoint as dpt
 import numpy as np
 
 from MAS_Microbiota import Simulation
-from .Microglia import Microglia
+from .Microglia import MicrogliaState, Microglia
 from ... import GridAgent
+
+
+class CytokineState(IntEnum):
+    PRO_INFLAMMATORY = 1
+    NON_INFLAMMATORY = 2
 
 
 class Cytokine(GridAgent):
@@ -12,19 +18,15 @@ class Cytokine(GridAgent):
 
     def __init__(self, local_id: int, rank: int, pt: dpt, context):
         super().__init__(local_id=local_id, type=Cytokine.TYPE, rank=rank, pt=pt, context=context)
-        possible_types = [Simulation.params["cyto_state"]["pro_inflammatory"],
-                          Simulation.params["cyto_state"]["non_inflammatory"]]
-        random_index = np.random.randint(0, len(possible_types))
-        self.state = possible_types[random_index]
-        if self.state == Simulation.params["cyto_state"]["pro_inflammatory"]:
+        self.state = Simulation.model.rng.choice(list(CytokineState))
+        if self.state == CytokineState.PRO_INFLAMMATORY:
             Simulation.model.pro_cytokine += 1
         else:
             Simulation.model.anti_cytokine += 1
 
     def save(self) -> Tuple:
-        return (self.uid, self.state, self.pt.coordinates, self.context)
+        return (self.uid, int(self.state), self.pt.coordinates, self.context)
 
-    # Cytokine step function
     def step(self):
         if self.pt is None:
             return
@@ -34,12 +36,10 @@ class Cytokine(GridAgent):
             Simulation.model.move(self, dpt(nghs_coords[random_index][0], nghs_coords[random_index][1]), self.context)
         else:
             ngh_microglia = microglie_nghs[0]
-            if self.state == Simulation.params["cyto_state"]["pro_inflammatory"] and ngh_microglia.state == \
-                    Simulation.params["microglia_state"]["resting"]:
-                ngh_microglia.state = Simulation.params["microglia_state"]["active"]
-            elif self.state == Simulation.params["cyto_state"]["non_inflammatory"] and ngh_microglia.state == \
-                    Simulation.params["microglia_state"]["active"]:
-                ngh_microglia.state = Simulation.params["microglia_state"]["resting"]
+            if self.state == CytokineState.PRO_INFLAMMATORY and ngh_microglia.state == MicrogliaState.RESTING:
+                ngh_microglia.state = MicrogliaState.ACTIVE
+            elif self.state == CytokineState.NON_INFLAMMATORY and ngh_microglia.state == MicrogliaState.ACTIVE:
+                ngh_microglia.state = MicrogliaState.RESTING
 
     # returns the microglia agents in the neighborhood of the agent
     def get_microglie_nghs(self):

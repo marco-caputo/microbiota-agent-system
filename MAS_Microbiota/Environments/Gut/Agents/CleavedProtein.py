@@ -4,12 +4,13 @@ import numpy as np
 
 from MAS_Microbiota import Simulation
 from MAS_Microbiota.Environments import GridAgent
+from MAS_Microbiota.Environments.Gut.Agents import ProteinName
 
 
 class CleavedProtein(GridAgent):
     TYPE = 2
 
-    def __init__(self, local_id: int, rank: int, cleaved_protein_name, pt: dpt, context):
+    def __init__(self, local_id: int, rank: int, cleaved_protein_name: ProteinName, pt: dpt, context):
         super().__init__(local_id=local_id, type=CleavedProtein.TYPE, rank=rank, pt=pt, context=context)
         self.name = cleaved_protein_name
         self.toAggregate = False
@@ -18,7 +19,7 @@ class CleavedProtein(GridAgent):
 
     def save(self) -> Tuple:
         return (
-        self.uid, self.name, self.pt.coordinates, self.toAggregate, self.alreadyAggregate, self.toRemove, self.context)
+        self.uid, int(self.name), self.pt.coordinates, self.toAggregate, self.alreadyAggregate, self.toRemove, self.context)
 
     def step(self):
         if self.alreadyAggregate or self.toAggregate or self.pt is None:

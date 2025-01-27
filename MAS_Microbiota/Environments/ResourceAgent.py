@@ -54,10 +54,11 @@ class ResourceAgent(GridAgent):
         if len(nghs_coords) <= 6 and self.context in {'gut', 'microbiota'}:
             if not permeability_check:
                 self.toMove = True
-            elif Simulation.model.barrier_impermeability < Simulation.params["barrier_impermeability"]:
-                percentage_threshold = int((Simulation.model.barrier_impermeability *
-                                            Simulation.params["barrier_impermeability"]) / 100)
-                choice = Simulation.model.rng.randint(0, 100)
+            elif (Simulation.model.epithelial_barrier_impermeability <
+                  Simulation.params["epithelial_barrier"]["initial_impermeability"]):
+                percentage_threshold = int((Simulation.model.epithelial_barrier_impermeability *
+                                            Simulation.params["epithelial_barrier"]["initial_impermeability"]) / 100)
+                choice = Simulation.model.rng.integers(0, 100)
                 if choice > percentage_threshold:
                     self.toMove = True
 
