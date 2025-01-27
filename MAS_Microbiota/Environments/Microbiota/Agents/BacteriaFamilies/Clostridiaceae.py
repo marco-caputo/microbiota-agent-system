@@ -16,10 +16,10 @@ class Clostridiaceae(Bacterium):
         return [SubstrateType.SUGAR]
 
     def fermentable_precursors(self) -> List[PrecursorType]:
-        return [PrecursorType.TRYPTOPHAN.TYROSINE]
+        return [PrecursorType.TRYPTOPHAN, PrecursorType.TYROSINE]
 
     def produced_scfa(self) -> List[SCFAType]:
-        return [SCFAType.ACETATE.BUTYRATE]
+        return [SCFAType.ACETATE, SCFAType.BUTYRATE]
 
     def can_release_bacteriocins(self) -> bool:
         return False

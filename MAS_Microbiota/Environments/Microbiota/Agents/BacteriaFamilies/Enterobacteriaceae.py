@@ -19,7 +19,7 @@ class Enterobacteriaceae(Bacterium):
         return self.produced_scfa() + [SCFAType.ACETATE]
 
     def produced_precursors(self) -> List[PrecursorType]:
-        return [PrecursorType.TRYPTOPHAN.TYROSINE]
+        return [PrecursorType.TRYPTOPHAN, PrecursorType.TYROSINE]
 
     def can_release_bacteriocins(self) -> bool:
         return False
