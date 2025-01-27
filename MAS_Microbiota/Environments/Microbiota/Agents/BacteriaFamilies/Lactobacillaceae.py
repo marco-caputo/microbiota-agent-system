@@ -7,25 +7,22 @@ from repast4py.space import DiscretePoint as dpt
 from MAS_Microbiota.Environments.Microbiota.Agents.Substrate import SubstrateType
 
 
-class Bifidobacteriaceae(Bacterium):
+class Lactobacillaceae(Bacterium):
 
     def __init__(self, local_id: int, rank: int, pt: dpt, context: str):
         super().__init__(local_id=local_id, rank=rank, pt=pt, context=context)
 
     def fermentable_substrates(self) -> List[SubstrateType]:
-        return [SubstrateType.CARBOHYDRATE]
+        return [SubstrateType.SUGAR]
 
     def fermentable_precursors(self) -> List[PrecursorType]:
-        return [PrecursorType.TRYPTOPHAN]
+        return [PrecursorType.TRYPTOPHAN.TYROSINE]
 
     def consumable_scfa(self) -> List[SCFAType]:
-        return self.produced_scfa() + [SCFAType.BUTYRATE]
+        return self.produced_scfa() + [SCFAType.PROPIONATE]
 
     def produced_scfa(self) -> List[SCFAType]:
         return [SCFAType.ACETATE]
-
-    def produced_precursors(self) -> List[PrecursorType]:
-        return [PrecursorType.TRYPTOPHAN]
 
     def can_release_bacteriocins(self) -> bool:
         return True
