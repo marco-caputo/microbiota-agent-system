@@ -18,8 +18,14 @@ class Clostridiaceae(Bacterium):
     def fermentable_precursors(self) -> List[PrecursorType]:
         return [PrecursorType.TRYPTOPHAN, PrecursorType.TYROSINE]
 
+    def consumable_scfa(self) -> List[SCFAType]:
+        return self.produced_scfa()
+
     def produced_scfa(self) -> List[SCFAType]:
         return [SCFAType.ACETATE, SCFAType.BUTYRATE]
+
+    def produced_precursors(self) -> List[PrecursorType]:
+        return []
 
     def can_release_bacteriocins(self) -> bool:
         return False

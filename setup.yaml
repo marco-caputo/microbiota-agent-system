@@ -12,7 +12,15 @@ world.height: 100
 # Microbiota
 microbiota_diversity_threshold : 100
 
-bifidobacteriaceae.count : 100
+enterobacteriaceae.count : 100          # (Pathogenic, Sugar        )  Initial count of Enterobacteriaceae
+streptococcaceae.count : 100            # (Pathogenic, Sugar        )  Initial count of Streptococcaceae
+clostridiaceae.count : 100              # (Good,       Sugar        )  Initial count of Clostridiaceae
+lactobacillaceae.count : 100            # (Good,       Sugar        )  Initial count of Lactobacillaceae
+prevotellaceae.count : 100              # (Good,       Carb         )  Initial count of Prevotellaceae
+bifidobacteriaceae.count : 100          # (Good,       Carb         )  Initial count of Bifidobacteriaceae
+ruminococcaceae.count : 100             # (Good,       Carb-Fiber   )  Initial count of Ruminococcaceae
+lachnospiraceae.count : 100             # (Good,       Carb-Fiber   )  Initial count of Lachnospiraceae
+
 
 scfa_acetate.count : 0
 scfa_propionate.count : 0

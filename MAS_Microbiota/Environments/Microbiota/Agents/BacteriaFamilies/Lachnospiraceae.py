@@ -1,6 +1,6 @@
 from typing import List
 
-
+from MAS_Microbiota.Environments.Brain.Agents import PrecursorType
 from MAS_Microbiota.Environments.Microbiota.Agents import Bacterium, SCFAType
 from repast4py.space import DiscretePoint as dpt
 
@@ -15,11 +15,17 @@ class Lachnospiraceae(Bacterium):
     def fermentable_substrates(self) -> List[SubstrateType]:
         return [SubstrateType.CARBOHYDRATE, SubstrateType.FIBER]
 
+    def fermentable_precursors(self) -> List[PrecursorType]:
+        return []
+
     def consumable_scfa(self) -> List[SCFAType]:
         return self.produced_scfa() + [SCFAType.ACETATE]
 
     def produced_scfa(self) -> List[SCFAType]:
         return [SCFAType.BUTYRATE, SCFAType.PROPIONATE]
+
+    def produced_precursors(self) -> List[PrecursorType]:
+        return []
 
     def can_release_bacteriocins(self) -> bool:
         return False

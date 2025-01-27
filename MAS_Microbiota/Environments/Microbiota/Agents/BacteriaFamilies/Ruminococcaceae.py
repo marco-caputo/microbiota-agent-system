@@ -15,6 +15,9 @@ class Ruminococcaceae(Bacterium):
     def fermentable_substrates(self) -> List[SubstrateType]:
         return [SubstrateType.CARBOHYDRATE, SubstrateType.FIBER]
 
+    def fermentable_precursors(self) -> List[PrecursorType]:
+        return []
+
     def consumable_scfa(self) -> List[SCFAType]:
         return self.produced_scfa() + [SCFAType.ACETATE, SCFAType.PROPIONATE]
 

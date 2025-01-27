@@ -26,7 +26,15 @@ class Microbiota(GridEnvironment):
     @staticmethod
     def initial_agents():
         return [
+            ('enterobacteriaceae.count', Enterobacteriaceae, None),
+            ('streptococcaceae.count', Streptococcaceae, None),
+            ('clostridiaceae.count', Clostridiaceae, None),
+            ('lactobacillaceae.count', Lactobacillaceae, None),
+            ('prevotellaceae.count', Prevotellaceae, None),
             ('bifidobacteriaceae.count', Bifidobacteriaceae, None),
+            ('ruminococcaceae.count', Ruminococcaceae, None),
+            ('lachnospiraceae.count', Lachnospiraceae, None),
+
             ('scfa_acetate.count', SCFA, SCFAType.ACETATE),
             ('scfa_propionate.count', SCFA, SCFAType.PROPIONATE),
             ('scfa_butyrate.count', SCFA, SCFAType.BUTYRATE),

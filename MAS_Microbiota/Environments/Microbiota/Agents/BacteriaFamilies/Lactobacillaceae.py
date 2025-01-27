@@ -24,6 +24,9 @@ class Lactobacillaceae(Bacterium):
     def produced_scfa(self) -> List[SCFAType]:
         return [SCFAType.ACETATE]
 
+    def produced_precursors(self) -> List[PrecursorType]:
+        return []
+
     def can_release_bacteriocins(self) -> bool:
         return True
 

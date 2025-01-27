@@ -29,7 +29,7 @@ class Brain(GridEnvironment):
             ]
 
     def agents_to_remove(self):
-        return (Oligomer, CleavedProtein, Neuron)
+        return (Oligomer, CleavedProtein, Neuron, Neurotransmitter)
 
 
     # Brain steps
