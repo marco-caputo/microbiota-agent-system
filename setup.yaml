@@ -133,7 +133,8 @@ agents_display: {
         "Cytokine": True,
         "Protein": True,
         "Neurotransmitter": True,
-        "Precursor": True
+        "Precursor": True,
+        "Oligermer": True,
     },
     "microbiota": {
         "Bacterium": True,

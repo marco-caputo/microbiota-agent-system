@@ -42,21 +42,24 @@ class Brain(GridEnvironment):
 
         # Collect data and perform operations based on agent states
         oligomer_to_remove = []
+        all_true_cleaved_aggregates = []
+        neurons = []
         active_microglias = 0
         damaged_neurons = 0
-        all_true_cleaved_aggregates = []
 
         for agent in self.context.agents():
             if isinstance(agent, Oligomer) and agent.toRemove:
                 oligomer_to_remove.append(agent)
             elif isinstance(agent, Microglia) and agent.state == MicrogliaState.ACTIVE:
                 active_microglias += 1
-            elif isinstance(agent, Neuron) and agent.state == NeuronState.DAMAGED:
-                damaged_neurons += 1
+            elif isinstance(agent, Neuron):
+                if agent.state == NeuronState.DAMAGED: damaged_neurons += 1
+                neurons.append(agent)
             elif isinstance(agent, CleavedProtein) and agent.toAggregate:
                 all_true_cleaved_aggregates.append(agent)
                 agent.toRemove = True
 
+        self.produce_neurotransmitters(neurons)
         self.add_cytokines(active_microglias)
         self.brain_add_cleaved_protein(damaged_neurons)
         self.remove_oligomers(removed_ids, oligomer_to_remove)
@@ -64,6 +67,23 @@ class Brain(GridEnvironment):
         self.aggreagate_cleaved_proteins(removed_ids, all_true_cleaved_aggregates)
         self.context.synchronize(restore_agent)
         self.remove_agents(removed_ids)
+
+    def produce_neurotransmitters(self, neurons):
+        produced_neurotrans = {n_type: 0 for n_type in list(NeurotransmitterType)}
+
+        for neuron in neurons:
+            for n_type in NeurotransmitterType:
+                if neuron.neurotrans_availability[n_type] > 0:
+                    produced_neurotrans[n_type] += neuron.neurotrans_rate[n_type]
+
+        for n_type in produced_neurotrans:
+            self.context.add(Neurotransmitter(
+                Simulation.model.new_id(),
+                Simulation.model.rank,
+                n_type,
+                self.grid.get_random_local_pt(Simulation.model.rng),
+                self.NAME
+            ))
 
 
     def add_cytokines(self, active_microglias: int):
