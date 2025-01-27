@@ -1,7 +1,7 @@
 from typing import Dict, Tuple
 from mpi4py import MPI
 import numpy as np
-from dataclasses import dataclass
+from dataclasses importpip dataclass
 from repast4py import core, space, schedule, logging, parameters
 from repast4py import context as ctx
 import repast4py
