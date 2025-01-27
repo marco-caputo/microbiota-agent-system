@@ -32,8 +32,15 @@ class GutBrainInterface:
         can, respectively, transfer the agent to the brain, update the impermeability of the Blood-Brain Barrier, or
         transfer the agent to the brain if it passes through the BBB.
 
-        :param agent: The agent to be transferred to the brain.
-        :return: None
+        parameters
+        ---------- 
+        agent: 
+            The agent to be transferred to the brain.
+
+        return
+        ----------
+        None
+        
         """
         if isinstance(agent, Oligomer):
             self._transfer_to_brain(agent)

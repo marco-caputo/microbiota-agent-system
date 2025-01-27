@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from .Utils import Simulation
 from MAS_Microbiota.Environments.Gut.Agents import *
 from MAS_Microbiota.Environments.Brain.Agents import *
+from MAS_Microbiota.Environments.Microbiota.Agents import *
 
 
 @dataclass
@@ -20,6 +21,12 @@ class Log:
     microbiota_good_bacteria_class : int = 0
     microbiota_pathogenic_bacteria_class : int = 0
     
+
+    # Microbiota variables => new lines
+    SCFA: int = 0
+    precursor: int = 0
+
+
     # Brain variables
     resting_microglia: int = 0
     active_microglia: int = 0
@@ -32,6 +39,8 @@ class Log:
     tau_oligomer_brain: int = 0
     cytokine_pro_inflammatory: int = 0
     cytokine_non_inflammatory: int = 0
+    # new variables
+    neurotransmitter: int = 0
 
     # Function to log the counts of the agents
     def log_counts(self):
@@ -53,7 +62,13 @@ class Log:
             "alpha_cleaved_brain": 0,
             "tau_cleaved_brain": 0,
             "alpha_oligomer_brain": 0,
-            "tau_oligomer_brain": 0
+            "tau_oligomer_brain": 0, 
+            # new lines
+            "SCFA": 0,
+            "precursor": 0,
+            "neurotransmitter": 0,
+            "bacteria_good": 0,
+            "bacteria_pathogenic": 0
         }
 
         for env_name in Simulation.model.envs:
@@ -89,6 +104,20 @@ class Log:
                         counts["aep_active"] += 1
                     else:
                         counts["aep_hyperactive"] += 1
+                elif (type(agent) == Neurotransmitter): ### new lines
+                    if context.NAME == "brain" and not agent.toRemove:
+                        counts["neurotransmitter"] += 1
+                elif isinstance(agent, Bacterium):
+                    if agent.causes_inflammation():
+                        counts["bacteria_pathogenic"] += 1
+                    else:
+                        counts["bacteria_good"] += 1
+                elif isinstance(agent, SCFA):
+                    if not agent.toRemove:
+                        counts["SCFA"] += 1
+                elif isinstance(agent, Precursor):
+                    if not agent.toRemove:
+                        counts["precursor"] += 1
 
         # brain
         self.healthy_neuron = counts["neuron_healthy"]
@@ -112,8 +141,16 @@ class Log:
         self.tau_cleaved_gut = counts["tau_cleaved_gut"]
         self.alpha_oligomer_gut = counts["alpha_oligomer_gut"]
         self.tau_oligomer_gut = counts["tau_oligomer_gut"]
-        self.microbiota_good_bacteria_class = Simulation.model.microbiota_good_bacteria_count
-        self.microbiota_pathogenic_bacteria_class = Simulation.model.microbiota_pathogenic_bacteria_count
+        #self.microbiota_good_bacteria_class = Simulation.model.microbiota_good_bacteria_count
+        #self.microbiota_pathogenic_bacteria_class = Simulation.model.microbiota_pathogenic_bacteria_count
+        self.microbiota_good_bacteria_class = counts["bacteria_good"]
+        self.microbiota_pathogenic_bacteria_class = counts["bacteria_pathogenic"]
+        self.SCFA = counts["SCFA"]
+        self.precursor = counts["precursor"]
+
+        
         self.barrier_impermeability = Simulation.model.epithelial_barrier_impermeability
+
+    
 
         Simulation.model.data_set.log(tick)
