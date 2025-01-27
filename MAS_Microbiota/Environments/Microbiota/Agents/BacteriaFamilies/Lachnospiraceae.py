@@ -13,13 +13,13 @@ class Lachnospiraceae(Bacterium):
         super().__init__(local_id=local_id, rank=rank, pt=pt, context=context)
 
     def fermentable_substrates(self) -> List[SubstrateType]:
-        return [SubstrateType.CARBOYDRATE.FIBER]
+        return [SubstrateType.CARBOHYDRATE, SubstrateType.FIBER]
 
     def consumable_scfa(self) -> List[SCFAType]:
         return self.produced_scfa() + [SCFAType.ACETATE]
 
     def produced_scfa(self) -> List[SCFAType]:
-        return [SCFAType.BUTYRATE.PROPIONATE]
+        return [SCFAType.BUTYRATE, SCFAType.PROPIONATE]
 
     def can_release_bacteriocins(self) -> bool:
         return False

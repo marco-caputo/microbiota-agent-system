@@ -11,7 +11,7 @@ class Prevotellaceae(Bacterium):
 
 
     def fermentable_substrates(self) -> List[SubstrateType]:
-        return [SubstrateType.CARBOYDRATE]
+        return [SubstrateType.CARBOHYDRATE]
 
     def consumable_scfa(self) -> List[SCFAType]:
         return self.produced_scfa() + [SCFAType.ACETATE]

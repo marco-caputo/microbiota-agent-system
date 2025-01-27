@@ -104,16 +104,19 @@ class GUI:
     def draw_agents(self, agents, area):
         radius = 5
 
+        gut_agents = Simulation.params['agents_display']['gut']
+        brain_agents = Simulation.params['agents_display']['brain']
         for agent in agents:
-            x_center = area[0] + (agent.pt.x / self.grid_width) * area[2]
-            y_center = area[1] + (agent.pt.y / self.grid_height) * area[3]
+            if isinstance(agent, Bacterium) or Simulation.params['agents_display'][agent.context][agent.__class__.__name__]:
+                x_center = area[0] + (agent.pt.x / self.grid_width) * area[2]
+                y_center = area[1] + (agent.pt.y / self.grid_height) * area[3]
 
-            # Adjust x and y to keep the entire circle within the area
-            x = max(area[0] + radius, min(x_center, area[0] + area[2] - radius))
-            y = max(area[1] + radius, min(y_center, area[1] + area[3] - radius))
+                # Adjust x and y to keep the entire circle within the area
+                x = max(area[0] + radius, min(x_center, area[0] + area[2] - radius))
+                y = max(area[1] + radius, min(y_center, area[1] + area[3] - radius))
 
-            color = self.get_agent_color(agent)
-            pygame.draw.circle(self.screen, color, (int(x), int(y)), radius)
+                color = self.get_agent_color(agent)
+                pygame.draw.circle(self.screen, color, (int(x), int(y)), radius)
 
     # Function to get the color of an agent based on its type and state
     def get_agent_color(self, agent):
@@ -134,7 +137,7 @@ class GUI:
                 color = (225, 225, 100)  # Darker Yellow
         elif agent.uid[1] == Oligomer.TYPE:
             if agent.name == ProteinName.TAU:
-                color = (0, 0, 255)  # Blue
+                color = (128, 0, 0)  # Maroon
             else:
                 color = (255, 255, 0)  # Yellow
         elif agent.uid[1] == ExternalInput.TYPE:
@@ -155,7 +158,7 @@ class GUI:
                 color = (0, 0, 0)  # Black
         elif agent.uid[1] == Cytokine.TYPE:
             if agent.state == CytokineState.PRO_INFLAMMATORY:
-                color = (255, 0, 0)  # Red
+                color = (0, 128, 0)  # Dark Green
             else:
                 color = (0, 255, 255)  # Cyan
         elif agent.uid[1] == Bacterium.TYPE:
@@ -164,7 +167,10 @@ class GUI:
                 color = (0, 255, 0)  # Green
         elif agent.uid[1] == Substrate.TYPE:
                 color = (255, 0, 0)  # Red
-        else: color = (0, 0, 0)  # TODO: temporaneo, aggiungere colori per nuovi agenti
+        elif agent.uid[1] == Precursor.TYPE:
+                color = (255, 165, 0) # Orange
+        elif agent.uid[1] == Neurotransmitter.TYPE:
+                color = (102, 51, 153) # Purple
         return color
 
     # Function to draw the legend on the screen
@@ -194,7 +200,7 @@ class GUI:
             (255, 255, 128): "Alpha-syn Protein",
             (113, 166, 210): "Tau Cleaved",
             (225, 225, 100): "Alpha-syn Cleaved",
-            (0, 0, 255): "Tau Oligomer",
+            (128, 0, 0): "Tau Oligomer",
             (255, 255, 0): "Alpha-syn Oligomer",
             (169, 169, 169): "External Input",
             (211, 211, 211): "Treatment",
@@ -203,8 +209,13 @@ class GUI:
             (255, 105, 180): "Healthy Neuron",
             (255, 69, 0): "Damaged Neuron",
             (0, 0, 0): "Dead Neuron",
-            (255, 0, 0): "Pro-inflammatory Cytokine",
-            (0, 255, 255): "Anti-inflammatory Cytokine"
+            (0, 128, 0): "Pro-inflammatory Cytokine",
+            (0, 255, 255): "Anti-inflammatory Cytokine",
+            (0, 0, 255): "Bacterium",
+            (0, 255, 0): "SCFA",
+            (255, 0, 0): "Substrate",
+            (255, 165, 0): "Precursor",
+            (102, 51, 153): "Neurotransmitter"
         }
 
         # Calculate number of items per column

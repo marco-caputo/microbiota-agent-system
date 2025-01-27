@@ -52,6 +52,7 @@ bacteria_energy_deltas: {
     "idle": -1
 }
 
+
 # Diet
 substrate_max_age : 10
 diet_substrates : {
@@ -112,3 +113,36 @@ treatment : True                        # Whether treatment is enabled
 treatment_diet.count : 1                # Number of diet input agents at start of simulation
 treatment_probiotics.count : 1          # Number of probiotic input agents at start of simulation
 treatment_probiotics_factor : 1         # Percentage of beneficial bacteria introduced by probiotic treatment
+
+# GUI
+agents_display: {
+    "gut": {
+        "Bacterium": True,
+        "Substrate": True,
+        "Neuron": True,
+        "Microglia": True,
+        "Cytokine": True,
+        "Protein": True,
+        "Neurotransmitter": True,
+        "AEP": True,
+        "CleavedProtein": True,
+    },
+    "brain": {
+        "Neuron": True,
+        "Microglia": True,
+        "Cytokine": True,
+        "Protein": True,
+        "Neurotransmitter": True,
+        "Precursor": True
+    },
+    "microbiota": {
+        "Bacterium": True,
+        "Substrate": False,
+        "Protein": False,
+        "SCFA": False,
+        "Neurotransmitter": False,
+        "ExternalInput": False,
+        "Treatment": False,
+        "Precursor": False
+    }
+}

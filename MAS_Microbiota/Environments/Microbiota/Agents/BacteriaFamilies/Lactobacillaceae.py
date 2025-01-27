@@ -16,7 +16,7 @@ class Lactobacillaceae(Bacterium):
         return [SubstrateType.SUGAR]
 
     def fermentable_precursors(self) -> List[PrecursorType]:
-        return [PrecursorType.TRYPTOPHAN.TYROSINE]
+        return [PrecursorType.TRYPTOPHAN, PrecursorType.TYROSINE]
 
     def consumable_scfa(self) -> List[SCFAType]:
         return self.produced_scfa() + [SCFAType.PROPIONATE]
