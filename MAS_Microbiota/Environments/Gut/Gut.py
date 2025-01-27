@@ -18,11 +18,6 @@ class Gut(GridEnvironment):
             ('aep_enzyme.count', AEP, None),
             ('tau_proteins.count', Protein, ProteinName.TAU),
             ('alpha_syn_proteins.count', Protein, ProteinName.ALPHA_SYN),
-            ('external_input_diet.count', ExternalInput, ExternalInputType.DIET),
-            ('external_input_antibiotics.count', ExternalInput, ExternalInputType.ANTIBIOTICS),
-            ('external_input_stress.count', ExternalInput, ExternalInputType.STRESS),
-            ('treatment_diet.count', Treatment, TreatmentType.DIET),
-            ('treatment_probiotics.count', Treatment, TreatmentType.PROBIOTICS),
             ('tau_oligomers_gut.count', Oligomer, ProteinName.TAU),
             ('alpha_syn_oligomers_gut.count', Oligomer, ProteinName.ALPHA_SYN)
         ]

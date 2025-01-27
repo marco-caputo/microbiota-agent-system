@@ -15,7 +15,7 @@ class ResourceAgent(GridAgent):
     Some resource agents can be removed from the environment, so they have a flag to indicate that.
     """
 
-    def __init__(self, local_id: int, type: int, rank: int, pt: dpt, context):
+    def __init__(self, local_id: int, type: int, rank: int, pt: dpt, context: str):
         super().__init__(local_id=local_id, type=type, rank=rank, pt=pt, context=context)
         self.toRemove = False
         self.toMove = False
@@ -51,16 +51,11 @@ class ResourceAgent(GridAgent):
         if self.pt is None:
             return
         nghs_coords = Simulation.model.ngh_finder.find(self.pt.x, self.pt.y)
-        if len(nghs_coords) <= 6 and self.context in {'gut', 'microbiota'}:
-            if not permeability_check:
+        if self.context in {'gut', 'microbiota'}:
+            choice = Simulation.model.rng.integers(0,
+                Simulation.params["epithelial_barrier"]["min_impermeability"] if permeability_check else 100)
+            if choice > Simulation.model.epithelial_barrier_impermeability:
                 self.toMove = True
-            elif (Simulation.model.epithelial_barrier_impermeability <
-                  Simulation.params["epithelial_barrier"]["initial_impermeability"]):
-                percentage_threshold = int((Simulation.model.epithelial_barrier_impermeability *
-                                            Simulation.params["epithelial_barrier"]["initial_impermeability"]) / 100)
-                choice = Simulation.model.rng.integers(0, 100)
-                if choice > percentage_threshold:
-                    self.toMove = True
 
     @abstractmethod
     def step(self):

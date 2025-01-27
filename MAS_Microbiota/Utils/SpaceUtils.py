@@ -27,7 +27,7 @@ class GridNghFinder:
         self.xmax = xmax
         self.ymax = ymax
 
-    def find(self, x, y):
+    def find(self, x, y) -> np.ndarray:
         xs = self.mo + x
         ys = self.no + y
 

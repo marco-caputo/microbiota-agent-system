@@ -9,7 +9,7 @@ from repast4py.space import DiscretePoint as dpt
 
 from MAS_Microbiota.GUI import GUI
 from MAS_Microbiota.Utils import *
-from MAS_Microbiota.Log import Log
+#from MAS_Microbiota.Log import Log #TODO: temporaneo
 from MAS_Microbiota.Environments.Gut.Gut import Gut
 from MAS_Microbiota.Environments.Brain.Brain import Brain
 from MAS_Microbiota.Environments.Microbiota.Microbiota import Microbiota
@@ -30,12 +30,13 @@ class Model():
 
         self.init_environments(comm)
         self.init_gui()
-        self.init_log()
+        #self.init_log() #TODO: temporaneo
         self.init_schedule(comm)
         self.init_rng()
 
         self.update_microbiota_params()
         self.init_brain_params()
+        self.init_gut_brain_interface_params()
 
         # Initialize the agents
         self.added_agents_id = 0
@@ -103,7 +104,7 @@ class Model():
         self.runner.schedule_repeating_event(1, 6, self.teleport_resources_step)
         self.runner.schedule_repeating_event(1, 1, self.envs[Brain.NAME].step, priority_type=0)
         self.runner.schedule_repeating_event(1, 1, self.screen.pygame_update, priority_type=1)
-        self.runner.schedule_repeating_event(1, 1, self.counts.log_counts, priority_type=1)
+        #self.runner.schedule_repeating_event(1, 1, self.counts.log_counts, priority_type=1) #TODO: temporaneo
         self.runner.schedule_stop(Simulation.params['stop.at'])
         self.runner.schedule_end_event(self.at_end)
 
@@ -130,9 +131,12 @@ class Model():
         self.microbiota_pathogenic_bacteria_count = self.envs[Microbiota.NAME].pathogenic_bacteria_count
 
     def init_gut_brain_interface_params(self):
-        self.epithelial_barrier_impermeability = Simulation.params["epithelial_barrier"]["initial_impermeability"]
-        self.epithelial_barrier_permeability_threshold_stop = Simulation.params["barrier_permeability_threshold_stop"]
-        self.epithelial_barrier_permeability_threshold_start = Simulation.params["barrier_permeability_threshold_start"]
+        self.epithelial_barrier_impermeability = \
+            Simulation.params["epithelial_barrier"]["initial_impermeability"]
+        self.epithelial_barrier_permeability_threshold_stop = \
+            Simulation.params["epithelial_barrier"]["permeability_threshold_stop"]
+        self.epithelial_barrier_permeability_threshold_start = \
+            Simulation.params["epithelial_barrier"]["permeability_threshold_start"]
 
     def init_brain_params(self):
         """
@@ -158,7 +162,7 @@ class Model():
     def create_agents(self, agent_class, pp_count, state, env_name):
         for j in range(pp_count):
             pt = self.envs[env_name].grid.get_random_local_pt(self.rng)
-            if agent_class in [Neuron, Microglia, CleavedProtein, Oligomer, Protein,  ExternalInput, Treatment, SCFA]:
+            if agent_class in [Neuron, Microglia, CleavedProtein, Oligomer, Protein, SCFA, Substrate, ExternalInput, Treatment]:
                 agent = agent_class(self.added_agents_id + j, self.rank, state, pt, env_name)
             else:
                 # For agents without special state
@@ -192,7 +196,7 @@ class Model():
     # Function to move the cleaved protein agents
     def teleport_resources_step(self):
         self.teleport_cleaved_protein_step()
-        self.envs[Microbiota.NAME].teleport_resources_step()
+        #self.envs[Microbiota.NAME].teleport_resources_step()
 
     def teleport_cleaved_protein_step(self):
         for env_name in [Gut.NAME, Brain.NAME]:

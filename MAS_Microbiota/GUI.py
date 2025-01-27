@@ -1,8 +1,12 @@
+from typing import Any
+
 import pygame
+
 from .Environments.Brain.Brain import Brain
 from .Environments.Gut.Gut import Gut
 from .Environments.Microbiota.Microbiota import Microbiota
 from .Utils import Simulation
+from MAS_Microbiota.Environments.Microbiota.Agents import *
 from MAS_Microbiota.Environments.Brain.Agents import *
 from MAS_Microbiota.Environments.Gut.Agents import *
 
@@ -54,7 +58,9 @@ class GUI:
     # Function to update the screen after each tick
     def update(self):
         # Update contexts
-        self.gut_context, self.brain_context, self.microbiota_context = self.envs[Gut.NAME].context, self.envs[Brain.NAME].context, self.envs[Microbiota.NAME].context
+        self.gut_context = self.envs[Gut.NAME].context
+        self.brain_context = self.envs[Brain.NAME].context
+        self.microbiota_context = self.envs[Microbiota.NAME].context
 
         # Fill background and draw border rectangle
         self.screen.fill(self.background_color)
@@ -80,7 +86,7 @@ class GUI:
 
         # Define areas and draw agents
         microbiota_area = (50, 50, self.width // 3 - 47, self.height - 300)
-        gut_area = (self.width // 3 + 3, 50, self.width // 3 - 50, self.height - 300)
+        gut_area = (self.width // 3 + 3, 50, self.width // 3 - 3, self.height - 300)
         brain_area = (2 * self.width // 3 + 3, 50, self.width // 3 - 50, self.height - 300)
         self._draw_context_agents(self.microbiota_context, microbiota_area)
         self._draw_context_agents(self.gut_context, gut_area)
@@ -112,22 +118,22 @@ class GUI:
     # Function to get the color of an agent based on its type and state
     def get_agent_color(self, agent):
         if agent.uid[1] == AEP.TYPE:
-            if agent.state == self.params["aep_state"]["active"]:
+            if agent.state == AEPState.ACTIVE:
                 color = (147, 112, 219)
             else:
                 color = (128, 0, 128)
         elif agent.uid[1] == Protein.TYPE:
-            if agent.name == self.params["protein_name"]["tau"]:
+            if agent.name == ProteinName.TAU:
                 color = (173, 216, 230)  # Light Blue
             else:
                 color = (255, 255, 128)  # Light Yellow
         elif agent.uid[1] == CleavedProtein.TYPE:
-            if agent.name == self.params["protein_name"]["tau"]:
+            if agent.name == ProteinName.TAU:
                 color = (113, 166, 210)  # Darker Blue
             else:
                 color = (225, 225, 100)  # Darker Yellow
         elif agent.uid[1] == Oligomer.TYPE:
-            if agent.name == self.params["protein_name"]["tau"]:
+            if agent.name == ProteinName.TAU:
                 color = (0, 0, 255)  # Blue
             else:
                 color = (255, 255, 0)  # Yellow
@@ -136,22 +142,29 @@ class GUI:
         elif agent.uid[1] == Treatment.TYPE:
             color = (211, 211, 211)  # Light Grey
         elif agent.uid[1] == Microglia.TYPE:
-            if agent.state == self.params["microglia_state"]["resting"]:
+            if agent.state == MicrogliaState.RESTING:
                 color = (144, 238, 144)  # Light Green
             else:
                 color = (0, 100, 0)  # Dark Green
         elif agent.uid[1] == Neuron.TYPE:
-            if agent.state == self.params["neuron_state"]["healthy"]:
+            if agent.state == NeuronState.HEALTHY:
                 color = (255, 105, 180)  # Pink
-            elif agent.state == self.params["neuron_state"]["damaged"]:
+            elif agent.state == NeuronState.DAMAGED:
                 color = (255, 69, 0)  # Orange-Red
             else:
                 color = (0, 0, 0)  # Black
         elif agent.uid[1] == Cytokine.TYPE:
-            if agent.state == self.params["cyto_state"]["pro_inflammatory"]:
+            if agent.state == CytokineState.PRO_INFLAMMATORY:
                 color = (255, 0, 0)  # Red
             else:
                 color = (0, 255, 255)  # Cyan
+        elif agent.uid[1] == Bacterium.TYPE:
+                color = (0, 0, 255)  # Blue
+        elif agent.uid[1] == SCFA.TYPE:
+                color = (0, 255, 0)  # Green
+        elif agent.uid[1] == Substrate.TYPE:
+                color = (255, 0, 0)  # Red
+        else: color = (0, 0, 0)  # TODO: temporaneo, aggiungere colori per nuovi agenti
         return color
 
     # Function to draw the legend on the screen

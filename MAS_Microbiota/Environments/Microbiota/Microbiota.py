@@ -1,13 +1,12 @@
+from enum import IntEnum
+
 from repast4py.space import DiscretePoint as dpt
 
 from MAS_Microbiota import Simulation, restore_agent
 from MAS_Microbiota.Environments import GridAgent, GridEnvironment, ResourceAgent
 from MAS_Microbiota.Environments.Brain.Agents.Neurotransmitter import Neurotransmitter
 from MAS_Microbiota.Environments.Brain.Agents.Precursor import Precursor, PrecursorType
-from MAS_Microbiota.Environments.Microbiota.Agents.Bacterium import Bacterium
-from MAS_Microbiota.Environments.Microbiota.Agents.BacteriaFamilies import *
-from MAS_Microbiota.Environments.Microbiota.Agents.SCFA import SCFAType, SCFA
-from MAS_Microbiota.Environments.Microbiota.Agents.Substrate import Substrate, SubstrateType
+from MAS_Microbiota.Environments.Microbiota.Agents import *
 
 
 class Microbiota(GridEnvironment):
@@ -18,7 +17,7 @@ class Microbiota(GridEnvironment):
         super().__init__(context, grid)
         self.substrates_to_add = {
             SubstrateType.FIBER: 0,
-            SubstrateType.CARBOYDRATE: 0,
+            SubstrateType.CARBOHYDRATE: 0,
             SubstrateType.SUGAR: 0
         }
         self.good_bacteria_count = 0
@@ -32,8 +31,13 @@ class Microbiota(GridEnvironment):
             ('scfa_propionate.count', SCFA, SCFAType.PROPIONATE),
             ('scfa_butyrate.count', SCFA, SCFAType.BUTYRATE),
             ('substrate_fiber.count', Substrate, SubstrateType.FIBER),
-            ('substrate_carbohydrate.count', Substrate, SubstrateType.CARBOYDRATE),
-            ('substrate_sugar.count', Substrate, SubstrateType.SUGAR)
+            ('substrate_carbohydrate.count', Substrate, SubstrateType.CARBOHYDRATE),
+            ('substrate_sugar.count', Substrate, SubstrateType.SUGAR),
+            ('external_input_diet.count', ExternalInput, ExternalInputType.DIET),
+            ('external_input_antibiotics.count', ExternalInput, ExternalInputType.ANTIBIOTICS),
+            ('external_input_stress.count', ExternalInput, ExternalInputType.STRESS),
+            ('treatment_diet.count', Treatment, TreatmentType.DIET),
+            ('treatment_probiotics.count', Treatment, TreatmentType.PROBIOTICS),
         ]
 
     def step(self):
@@ -56,24 +60,24 @@ class Microbiota(GridEnvironment):
         self.remove_agents(removed_ids)
         self.count_bacteria()
         self.context.synchronize(restore_agent)
+        self.remove_agents(removed_ids)
 
 
     def add_substrates(self):
-        self.substrates_to_add[SubstrateType.FIBER] += Simulation.params["diet_substrates"]["balanced"]["fibers"]
-        self.substrates_to_add[SubstrateType.CARBOYDRATE] += Simulation.params["diet_substrates"]["balanced"]["carbohydrates"]
-        self.substrates_to_add[SubstrateType.SUGAR] += Simulation.params["diet_substrates"]["balanced"]["sugar"]
+        for type in list(SubstrateType):
+            self.substrates_to_add[type] += Simulation.params["diet_substrates"]["balanced"][type.name.lower()]
 
         for substrate_type in self.substrates_to_add:
             for _ in range(self.substrates_to_add[substrate_type]):
                 pt = self.grid.get_random_local_pt(Simulation.model.rng)
-                substrate = Substrate(Simulation.model.new_id(), Simulation.model.rank, substrate_type, pt, self.context)
-                self.context.agents().add(substrate)
-
+                substrate = Substrate(Simulation.model.new_id(), Simulation.model.rank, substrate_type, pt, self.NAME)
+                self.context.add(substrate)
+            self.substrates_to_add[substrate_type] = min(self.substrates_to_add[substrate_type], 0)
 
 
     def move_resources_to_brain(self, resources_to_move):
         for agent in resources_to_move:
-            if (type(agent) in [SCFA, Precursor, Substrate]):
+            if isinstance(agent, (SCFA, Precursor, Substrate)):
                 Simulation.model.gutBrainInterface.transfer_to_bloodstream(agent)
             elif isinstance(agent, Neurotransmitter):
                 Simulation.model.gutBrainInterface.transfer_to_enteric_nervous_system(agent)
@@ -90,7 +94,7 @@ class Microbiota(GridEnvironment):
 
 
     def apply_actions(self):
-        for bacterium in (agent for agent in self.context.agents() if isinstance(agent, Bacterium)): # For each bacterium in the context...
+        for bacterium in [agent for agent in self.context.agents() if isinstance(agent, Bacterium)]: # For each bacterium in the context...
             bacterium.step() # Call the step method of the bacterium.
             if bacterium.toFission:
                 self._fission(bacterium)
@@ -108,11 +112,11 @@ class Microbiota(GridEnvironment):
         :return: A list of empty points
         """
         empty_pt_list = []
-        nghs_coords = Simulation.model.ngh_finder.find(pt)
+        nghs_coords = Simulation.model.ngh_finder.find(pt.x, pt.y)
         for ngh_coords in nghs_coords:
             nghs_agents = list(self.grid.get_agents(dpt(ngh_coords[0], ngh_coords[1])))
             if len([ag for ag in nghs_agents if isinstance(ag, Bacterium)]) == 0:
-                 empty_pt_list.append(empty_pt_list)
+                 empty_pt_list.append(ngh_coords)
         return empty_pt_list
 
     def teleport_resources_step(self):
@@ -133,24 +137,24 @@ class Microbiota(GridEnvironment):
             return
         point = Simulation.model.rng.choice(empty_ngh_pts)
         bact_class = type(bacterium)
-        new_bacterium = bact_class(Simulation.model.new_id(), Simulation.model.rank, self.context, point)
-        self.context.agents().add(new_bacterium)
+        new_bacterium = bact_class(Simulation.model.new_id(), Simulation.model.rank, dpt(point[0], point[1]), self.NAME)
+        self.context.add(new_bacterium)
         bacterium.toFission = False
 
     def _ferment(self, bacterium: Bacterium, fermentable_type: type[ResourceAgent]):
         neighbours = Simulation.model.ngh_finder.find(bacterium.pt.x, bacterium.pt.y)  # Neighbours of the bacterium...
-        point = neighbours.get_random_local_pt(Simulation.model.rng)
+        point = Simulation.model.rng.choice(neighbours)
         if fermentable_type == Substrate:
-            self._add_metabolite(bacterium.produced_scfa(), SCFA, point)
-            self._add_metabolite(bacterium.produced_precursors(), Precursor, point)
+            self._add_metabolite(bacterium.produced_scfa(), SCFA, dpt(point[0], point[1]))
+            self._add_metabolite(bacterium.produced_precursors(), Precursor, dpt(point[0], point[1]))
         elif fermentable_type == Precursor and bacterium.fermentedPrecursor != 0:
             fermented_precursor_type = PrecursorType(bacterium.fermentedPrecursor)
-            self._add_metabolite(fermented_precursor_type.associated_neurotransmitters(), Neurotransmitter, point)
+            self._add_metabolite(fermented_precursor_type.associated_neurotransmitters(), Neurotransmitter, dpt(point[0], point[1]))
             bacterium.fermentedPrecursor = 0
 
     # Based on the assumption that all metabolite and neurotransmitters agents have the same constructor signature.
-    def _add_metabolite(self, types, agent_class, point):
+    def _add_metabolite(self, types: list[IntEnum], agent_class: type, point: dpt):
         if len(types) > 0:
-            current_type = Simulation.model.rng.choice(types)
-            agent = agent_class(Simulation.model.new_id(), Simulation.model.rank, current_type, point, self.context)
-            self.context.agents().add(agent)
+            type = types[0].__class__(Simulation.model.rng.choice(types))
+            agent = agent_class(Simulation.model.new_id(), Simulation.model.rank, type, point, self.NAME)
+            self.context.add(agent)

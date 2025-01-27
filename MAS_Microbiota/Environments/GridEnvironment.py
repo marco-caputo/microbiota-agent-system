@@ -54,8 +54,7 @@ class GridEnvironment(ABC):
         :param removed_ids: A set with the ids of already removed agents.
         """
         remove_agents = [agent for agent in self.context.agents()
-                         if isinstance(agent, self.agents_to_remove()) and agent.toRemove]
-        removed_ids = set()
+                         if isinstance(agent, self.agents_to_remove()) and getattr(agent, "toRemove", False)]
         for agent in remove_agents:
             if agent.uid not in removed_ids and self.context.agent(agent.uid) is not None:
                 self.remove(agent)

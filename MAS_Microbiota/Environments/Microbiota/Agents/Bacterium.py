@@ -7,10 +7,8 @@ from enum import IntEnum
 
 from MAS_Microbiota.Environments import ResourceAgent, GridAgent
 from MAS_Microbiota.Environments.Brain.Agents.Precursor import PrecursorType, Precursor
-from MAS_Microbiota.Environments.Microbiota.Agents import Substrate
-from MAS_Microbiota.Environments.Microbiota.Agents import SCFA
-from MAS_Microbiota.Environments.Microbiota.Agents.SCFA import SCFAType
-from MAS_Microbiota.Environments.Microbiota.Agents.Substrate import SubstrateType
+from MAS_Microbiota.Environments.Microbiota.Agents.Substrate import SubstrateType, Substrate
+from MAS_Microbiota.Environments.Microbiota.Agents.SCFA import SCFAType, SCFA
 
 
 class EnergyLevel(IntEnum):
@@ -45,7 +43,7 @@ class Bacterium(GridAgent):
         super().__init__(local_id=local_id, type=Bacterium.TYPE, rank=rank, pt=pt, context=context)
         self.rank = rank
         self.pt = pt
-        self.energy_level = EnergyLevel[Simulation.params["bacterial_initial_state"]]
+        self.energy_level = EnergyLevel[Simulation.params["bacteria_initial_state"]]
         self.toRemove: bool = False
         self.toFission: bool = False
         self.toFerment: Dict[Type[ResourceAgent], bool] = {
@@ -76,9 +74,9 @@ class Bacterium(GridAgent):
         SCFA and Substrates.
         """
         nghs_coords = Simulation.model.ngh_finder.find(self.pt.x, self.pt.y)
-        return self.__check_for_nghs_bacteria__(nghs_coords), self.__check_for_nghs_resources__(nghs_coords)
+        return self._check_for_nghs_bacteria(nghs_coords), self.__check_for_nghs_resources__(nghs_coords)
 
-    def __check_for_nghs_bacteria__(self, nghs_coords: np.ndarray) -> List['Bacterium']:
+    def _check_for_nghs_bacteria(self, nghs_coords: np.ndarray) -> List['Bacterium']:
         """
         Given a list of coordinates around an agent it checks for neighbouring 
         agents which are also bacteria not marked for removal.
@@ -107,16 +105,17 @@ class Bacterium(GridAgent):
         for ngh_coord in nghs_coords:
             ngh_array = Simulation.model.envs['microbiota'].grid.get_agents(dpt(ngh_coord[0], ngh_coord[1]))
             for ngh in ngh_array:
-                if type(ngh) in [SCFA, Substrate, Precursor] and not ngh.toRemove:
+                if isinstance(ngh, (SCFA, Substrate, Precursor)) and not ngh.toRemove:
                     toAdd = False
-                    if type(ngh) == SCFA:
-                        toAdd = SCFAType in self.consumable_scfa()
-                    elif type(ngh) == Substrate:
-                        toAdd = SubstrateType in self.fermentable_substrates()
-                    elif type(ngh) == Precursor:
-                        toAdd = PrecursorType in self.fermentable_precursors()
-                    if toAdd:
-                        result.append(ngh)
+                    if isinstance(ngh, SCFA):
+                        toAdd = ngh.scfa_type in self.consumable_scfa()
+                    elif isinstance(ngh, Substrate):
+                        toAdd = ngh.sub_type in self.fermentable_substrates()
+                    elif isinstance(ngh, Precursor):
+                        toAdd = ngh.precursor_type in self.fermentable_precursors()
+
+                    if toAdd: result.append(ngh)
+
         return result
 
     ##### THE AGENT'S ACTIONS
@@ -151,7 +150,7 @@ class Bacterium(GridAgent):
             self.ferment(Precursor, percieved_resources)
 
         elif self.energy_level < EnergyLevel.MAXIMUM and any(isinstance(item, SCFA) for item in percieved_resources):
-            self.consume(percieved_resources)
+            self.consume([ag for ag in percieved_resources if isinstance(ag, SCFA)])
 
         elif (self.can_move() and self.energy_level > EnergyLevel.NONE and len(percieved_resources) == 0
                 and len(Simulation.model.envs['microbiota'].find_bact_free_nghs(self.pt)) != 0):
@@ -186,21 +185,13 @@ class Bacterium(GridAgent):
             if fermentable_type == Precursor:
                 self.fermentedPrecursor = int(nutrient.precursor_type)
 
-    def consume(self, resources: List[ResourceAgent]) -> None:
+    def consume(self, scfas: List[SCFA]) -> None:
         """
         Consumes a SCFA agent to produce energy for the bacterium.
-
-        Parameters
-        ----------
-        param resources: List[ResourceAgent]
-            A list of ResourceAgent agents in the vicinity of the Bacterium.
-
-        return
-        ------
-        None
+        :param scfas: The list of SCFA agents in the vicinity of the Bacterium.
         """
-        if len(resources) > 0:
-            resource = Simulation.model.rng.choice(resources)
+        if len(scfas) > 0:
+            resource = Simulation.model.rng.choice(scfas)
             resource.toRemove = True
             self.update_energy(Simulation.params["bacteria_energy_deltas"]["consume"])
 

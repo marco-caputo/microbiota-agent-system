@@ -13,7 +13,7 @@ class Bifidobacteriaceae(Bacterium):
         super().__init__(local_id=local_id, rank=rank, pt=pt, context=context)
 
     def fermentable_substrates(self) -> List[SubstrateType]:
-        return [SubstrateType.CARBOYDRATE]
+        return [SubstrateType.CARBOHYDRATE]
 
     def fermentable_precursors(self) -> List[PrecursorType]:
         return [PrecursorType.TRYPTOPHAN]

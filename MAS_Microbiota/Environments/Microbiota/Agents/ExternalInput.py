@@ -19,7 +19,6 @@ class ExternalInput(GridAgent):
     def __init__(self, local_id: int, rank: int, input_type: ExternalInputType, pt: dpt, context):
         super().__init__(local_id=local_id, type=ExternalInput.TYPE, rank=rank, pt=pt, context=context)
         self.input_type = input_type
-        self.microbiota_env = Simulation.model.envs['microbiota']
 
     def save(self) -> Tuple:
         return (self.uid, int(self.input_type), self.pt.coordinates, self.context)
@@ -40,12 +39,9 @@ class ExternalInput(GridAgent):
         Modifies the substrates to be introduced in the environment in the next step, representing the effect of
         a diet rich in sugar and poor in fiber.
         """
-        self.microbiota_env.substrates_to_add[SubstrateType.SUGAR] += \
-            Simulation.params["diet_substrate"]["external_input_influence"]["sugar"]
-        self.microbiota_env.substrates_to_add[SubstrateType.CARBOYDRATE] += \
-            Simulation.params["diet_substrate"]["external_input_influence"]["carboydrate"]
-        self.microbiota_env.substrates_to_add[SubstrateType.FIBER]["fiber"] += \
-            Simulation.params["diet_substrate"]["external_input_influence"]["fiber"]
+        for type in list(SubstrateType):
+            Simulation.model.envs['microbiota'].substrates_to_add[type] += \
+                Simulation.params["diet_substrates"]["external_input_influence"][type.name.lower()]
 
     def _kill_bacteria(self, bacteria_factor):
         """
@@ -57,8 +53,8 @@ class ExternalInput(GridAgent):
             int(((Simulation.model.microbiota_good_bacteria_count +
                   Simulation.model.microbiota_pathogenic_bacteria_count) *
                          Simulation.model.rng.uniform(0, bacteria_factor)) / 100))
-        bacteria = [b for b in self.microbiota_env.context.agents() if isinstance(b, Bacterium)]
-        for b in Simulation.model.rng.sample(bacteria, to_remove):
+        bacteria = [b for b in Simulation.model.envs['microbiota'].context.agents() if isinstance(b, Bacterium)]
+        for b in Simulation.model.rng.choice(bacteria, size=min(len(bacteria), to_remove), replace=False):
             b.toRemove = True
 
     def _boost_pathogenic_bacteria(self, bacteria_factor):
@@ -67,9 +63,9 @@ class ExternalInput(GridAgent):
         The boosts consists in setting the energy level of the bacteria to the maximum.
         :param bacteria_factor: percentage of pathogenic bacteria to boost
         """
-        to_boost = int((Simulation.params["microbiota_pathogenic_bacteria_class"] *
+        to_boost = int((Simulation.model.microbiota_pathogenic_bacteria_count *
                       Simulation.model.rng.uniform(0, bacteria_factor)) / 100)
-        pathogenic_bacteria = [b for b in self.microbiota_env.context.agents() if
+        pathogenic_bacteria = [b for b in Simulation.model.envs['microbiota'].context.agents() if
                                isinstance(b, Bacterium) and b.causes_inflammation()]
         if len(pathogenic_bacteria) > 0:
             for _ in range(to_boost):

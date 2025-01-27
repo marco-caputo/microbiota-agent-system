@@ -36,7 +36,7 @@ class Neuron(GridAgent):
 
     # Changes the state of the neuron agent
     def change_state(self):
-        self.state = NeuronState(max(0, int(self.state) - 1))
+        self.state = NeuronState(min(int(NeuronState.DEAD), int(self.state) + 1))
         if self.state == NeuronState.DEAD:
             self.toRemove = True
             Simulation.model.dead_neuron += 1
@@ -78,7 +78,7 @@ class Neuron(GridAgent):
             else:
                 self.neurotrans_availability[neurotransmitter] = (max(0,
                     self.neurotrans_availability[neurotransmitter] -
-                    Simulation.params["neurotrans_decrease"][self.state] * self.neurotrans_rate[neurotransmitter]))
+                    Simulation.params["neurotrans_decrease"][self.state.name] * self.neurotrans_rate[neurotransmitter]))
 
         # Uses a nearby precursor to make more neurotransmitters available
         precursor = self.percept_precursor()
@@ -100,6 +100,6 @@ class Neuron(GridAgent):
         for ngh_coords in Simulation.model.ngh_finder.find(self.pt.x, self.pt.y):
             nghs_array = Simulation.model.envs['brain'].grid.get_agents(dpt(ngh_coords[0], ngh_coords[1]))
             for ngh in nghs_array:
-                if type(ngh) == Precursor:
+                if isinstance(ngh, Precursor):
                     return ngh
         return None

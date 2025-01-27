@@ -26,7 +26,7 @@ class Precursor(ResourceAgent):
         self.precursor_type = precursor_type
 
     def save(self):
-        return (self.uid, self.precursor_type, self.pt.coordinates, self.context)
+        return (self.uid, int(self.precursor_type), self.pt.coordinates, self.context)
 
     def step(self):
         self.random_movement()

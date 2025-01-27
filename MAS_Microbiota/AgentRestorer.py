@@ -79,6 +79,12 @@ AGENT_MAPPING = {
             setattr(agent, "toRemove", data[4]),
         ),
     },
+    Precursor.TYPE: {
+        "constructor": lambda uid, pt, context, data: Precursor(uid[0], uid[2], PrecursorType(data[1]), pt, context),
+        "attributes": lambda agent, data: (
+            setattr(agent, "toRemove", data[4]),
+        ),
+    },
     Neurotransmitter.TYPE: {
         "constructor": lambda uid, pt, context, data: Neurotransmitter(uid[0], uid[2], NeurotransmitterType(data[1]), pt, context),
         "attributes": lambda agent, data: (

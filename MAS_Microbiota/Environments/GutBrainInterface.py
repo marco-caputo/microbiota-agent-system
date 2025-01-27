@@ -22,8 +22,7 @@ class GutBrainInterface:
 
     def __init__(self, envs: dict):
         self.envs = envs
-        self.rng = Simulation.model.rng
-        self.bbb_impermeability = Simulation.params['blood_brain_barrier']['impermeability']
+        self.bbb_impermeability = Simulation.params['blood_brain_barrier']['initial_impermeability']
 
 
     def transfer_to_bloodstream(self, agent: Oligomer | SCFA | Precursor):
@@ -51,12 +50,12 @@ class GutBrainInterface:
         applies the influence of the neurotransmitter on the production rates of neurotransmitters in the brain.
         A single neurotransmitter agent can influence one random neuron in the brain.
 
-        :param agent: The neurotransmitter agent to be transferred to the enteric nervous system.
+        :param neurotrans: The neurotransmitter agent to be transferred to the enteric nervous system.
         """
-        neurons = [n for n in Simulation.model.envs[Brain.NAME].context.get_agents() if isinstance(n, Neuron)]
+        neurons = [n for n in Simulation.model.envs[Brain.NAME].context.agents() if isinstance(n, Neuron)]
         if len(neurons) > 0:
             original_env_name = neurotrans.context
-            neuron = self.rng.choice(neurons)
+            neuron = Simulation.model.rng.choice(neurons)
             neuron.neurotrans_availability[neurotrans.neurotrans_type] += Simulation.params['neurotrans_rate_increase']
             neurotrans.toRemove = False
             neurotrans.toMove = False
@@ -73,7 +72,7 @@ class GutBrainInterface:
         """
         original_env_name = agent.context
         self.envs[Brain.NAME].context.add(agent)
-        pt = self.envs[Brain.NAME].grid.get_random_local_pt(self.rng)
+        pt = self.envs[Brain.NAME].grid.get_random_local_pt(Simulation.model.rng)
         Simulation.model.move(agent, pt, Brain.NAME)
         agent.context = Brain.NAME
         agent.toRemove = False
@@ -92,14 +91,17 @@ class GutBrainInterface:
         """
         self.bbb_impermeability += (scfa.BBB_impermeability_coefficient() *
                                     Simulation.params['blood_brain_barrier']['scfa_permeability_influence'])
-        self.bbb_impermeability = max(Simulation.params['blood_brain_barrier']['min_impermeability'],
-                                      min(Simulation.params['blood_brain_barrier']['max_impermeability'],
+        self.bbb_impermeability = max(Simulation.params['blood_brain_barrier']['minimum_impermeability'],
+                                      min(Simulation.params['blood_brain_barrier']['maximum_impermeability'],
                                           self.bbb_impermeability)
                                       )
+        scfa.toRemove = False
+        scfa.toMove = False
+        self.envs[scfa.context].remove(scfa)
 
     def _passes_through_bbb(self) -> bool:
         """
         Check to determine if a Precursor agent can pass through the Blood-Brain Barrier.
         This is determined by the current impermeability of the BBB and a random check.
         """
-        return self.rng.randint(0, 100) > self.bbb_impermeability
+        return Simulation.model.rng.integers(0, 100) > self.bbb_impermeability

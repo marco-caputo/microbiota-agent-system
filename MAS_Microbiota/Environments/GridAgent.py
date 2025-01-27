@@ -4,7 +4,7 @@ from typing import Tuple
 from repast4py.space import DiscretePoint as dpt
 from repast4py.core import Agent
 
-class GridAgent(ABC, Agent):
+class GridAgent(Agent, ABC):
     """
     Abstract class for the agents that can be located in discrete positions of a
     certain grid environment.

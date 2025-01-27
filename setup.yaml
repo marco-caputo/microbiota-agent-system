@@ -12,14 +12,14 @@ world.height: 100
 # Microbiota
 microbiota_diversity_threshold : 100
 
-bifidobacteriaceae.count : 10
+bifidobacteriaceae.count : 100
 
-scfa_acetate.count : 10
-scfa_propionate.count : 10
-scfa_butyrate.count : 10
+scfa_acetate.count : 0
+scfa_propionate.count : 0
+scfa_butyrate.count : 0
 
 substrate_fiber.count : 10
-substrate_carbohydrates.count : 10
+substrate_carbohydrate.count : 10
 substrate_sugar.count : 10
 
 # Gut
@@ -53,27 +53,29 @@ bacteria_energy_deltas: {
 }
 
 # Diet
+substrate_max_age : 10
 diet_substrates : {
     "balanced": {
-        "fiber": 50,
-        "carbohydrates": 50,
-        "sugar": 50
+        "fiber": 0,
+        "carbohydrate": 80,
+        "sugar": 0
     },
     "external_input_influence": {
-        "fiber": -2,
-        "carbohydrates": -1,
-        "sugar": 1
+        "fiber": 0,
+        "carbohydrate": -1,
+        "sugar": 0
     },
     "treatment_influence": {
-        "fiber": 3,
-        "carbohydrates": 2,
-        "sugar": -2
+        "fiber": 0,
+        "carbohydrate": 2,
+        "sugar": 0
     }
 }
 
 # Epithelial Barrier
 epithelial_barrier: {
-    initial_impermeability: 50,
+    initial_impermeability: 80,
+    min_impermeability: 30,             # Minimum impermeability that impedes oligomer passage
     permeability_threshold: 25,
     permeability_threshold_stop: 20,
     permeability_threshold_start: 30
@@ -94,19 +96,19 @@ neurotrans_initial_availability : 5     # Initial neurotransmitter availability 
 precursor_boost: 10                     # Boost in neurotransmitter availability for a neuron when precursor is available
 neurotrans_rate_increase : 3            # Increase in neurotransmitter production rate for a neuron when stimulated by vagus nerve
 neurotrans_decrease : {                 # Decrease in neurotransmitter availability in a neuron at each step
-    healthy : 1,
-    damaged : 3
+    HEALTHY : 1,
+    DAMAGED : 3
 }
 
 # External input
-external_input_diet.count : 10          # Number of diet input agents at start of simulation
-external_input_antibiotics.count : 10   # Number of antibiotics input agents at start of simulation
-external_input_stress.count : 10        # Number of stress input agents at start of simulation
+external_input_diet.count : 1           # Number of diet input agents at start of simulation
+external_input_antibiotics.count : 0    # Number of antibiotics input agents at start of simulation
+external_input_stress.count : 1         # Number of stress input agents at start of simulation
 external_input_antibiotics_factor : 3   # Percentage of bacteria killed by antibiotics
-external_input_stress_factor : 3        # Percentage of pathogenic bacteria boosted by stress
+external_input_stress_factor : 1        # Percentage of pathogenic bacteria boosted by stress
 
 # Treatment
 treatment : True                        # Whether treatment is enabled
-treatment_diet.count : 10               # Number of diet input agents at start of simulation
-treatment_probiotics.count : 10         # Number of probiotic input agents at start of simulation
-treatment_probiotics_factor : 3         # Percentage of beneficial bacteria introduced by probiotic treatment
+treatment_diet.count : 1                # Number of diet input agents at start of simulation
+treatment_probiotics.count : 1          # Number of probiotic input agents at start of simulation
+treatment_probiotics_factor : 1         # Percentage of beneficial bacteria introduced by probiotic treatment

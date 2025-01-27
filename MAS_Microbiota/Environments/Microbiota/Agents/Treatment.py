@@ -21,7 +21,6 @@ class Treatment(GridAgent):
     def __init__(self, local_id: int, rank: int, treatment_type: TreatmentType, pt: dpt, context):
         super().__init__(local_id=local_id, type=Treatment.TYPE, rank=rank, pt=pt, context=context)
         self.treatment_type = treatment_type
-        self.microbiota_env = Simulation.model.envs['microbiota']
 
     def save(self) -> Tuple:
         return (self.uid, int(self.treatment_type), self.pt.coordinates, self.context)
@@ -40,12 +39,9 @@ class Treatment(GridAgent):
         Modifies the substrates to be introduced in the environment in the next step, representing the effect of
         a diet rich in fiber and poor in sugar.
         """
-        self.microbiota_env.substrates_to_add[SubstrateType.SUGAR] += \
-            Simulation.params["diet_substrate"]["treatment_influence"]["sugar"]
-        self.microbiota_env.substrates_to_add[SubstrateType.CARBOYDRATE] += \
-            Simulation.params["diet_substrate"]["treatment_influence"]["carboydrate"]
-        self.microbiota_env.substrates_to_add[SubstrateType.FIBER]["fiber"] += \
-            Simulation.params["diet_substrate"]["treatment_influence"]["fiber"]
+        for type in list(SubstrateType):
+            Simulation.model.envs['microbiota'].substrates_to_add[type] += \
+                Simulation.params["diet_substrates"]["treatment_influence"][type.name.lower()]
 
     def _introduce_good_bacteria(self, probiotics_factor):
         """
@@ -56,6 +52,6 @@ class Treatment(GridAgent):
                       Simulation.model.rng.uniform(0, probiotics_factor)) / 100)
         for _ in range(to_add):
             bacteria_class = Simulation.model.rng.choice(self.PROBIOTICS_BACTERIA)
-            random_pt = self.microbiota_env.grid.get_random_local_pt(Simulation.model.rng)
+            random_pt = Simulation.model.envs['microbiota'].grid.get_random_local_pt(Simulation.model.rng)
             bacterium_to_add = bacteria_class(Simulation.model.new_id(), Simulation.model.rank, random_pt, self.context)
-            self.microbiota_env.context.add_agent(bacterium_to_add)
+            Simulation.model.envs['microbiota'].context.add_agent(bacterium_to_add)
