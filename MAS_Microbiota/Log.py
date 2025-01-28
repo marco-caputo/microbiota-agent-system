@@ -76,32 +76,32 @@ class Log:
             context = Simulation.model.envs[env_name].context
             for agent in context.agents():
                 if isinstance(agent, Oligomer):
-                    if agent.name == Simulation.params["protein_name"]["alpha_syn"]:
+                    if agent.name == ProteinName.ALPHA_SYN:
                         counts["alpha_oligomer_"+env_name] += 1
                     else:
                         counts["tau_oligomer_"+env_name] += 1
                 elif isinstance(agent, CleavedProtein):
-                    if agent.name == Simulation.params["protein_name"]["alpha_syn"]:
+                    if agent.name == ProteinName.ALPHA_SYN:
                         counts["alpha_cleaved_"+env_name] += 1
                     else:
                         counts["tau_cleaved_"+env_name] += 1
                 elif isinstance(agent, Neuron):
-                    if agent.state == Simulation.params["neuron_state"]["healthy"]:
+                    if agent.state == NeuronState.HEALTHY:
                         counts["neuron_healthy"] += 1
                     elif agent.state == Simulation.params["neuron_state"]["damaged"]:
                         counts["neuron_damaged"] += 1
                 elif isinstance(agent, Microglia):
-                    if agent.state == Simulation.params["microglia_state"]["active"]:
+                    if agent.state == MicrogliaState.ACTIVE:
                         counts["microglia_active"] += 1
                     else:
                         counts["microglia_resting"] += 1
                 elif (type(agent) == Protein):
-                    if (agent.name == Simulation.params["protein_name"]["alpha_syn"]):
+                    if (agent.name == ProteinName.ALPHA_SYN):
                         counts["alpha_protein_"+env_name] += 1
                     else:
                         counts["tau_protein_"+env_name] += 1
                 elif (type(agent) == AEP):
-                    if (agent.state == Simulation.params["aep_state"]["active"]):
+                    if (agent.state == AEPState.ACTIVE):
                         counts["aep_active"] += 1
                     else:
                         counts["aep_hyperactive"] += 1
@@ -142,8 +142,8 @@ class Log:
         self.tau_cleaved_gut = counts["tau_cleaved_gut"]
         self.alpha_oligomer_gut = counts["alpha_oligomer_gut"]
         self.tau_oligomer_gut = counts["tau_oligomer_gut"]
-        #self.microbiota_good_bacteria_class = Simulation.model.microbiota_good_bacteria_count
-        #self.microbiota_pathogenic_bacteria_class = Simulation.model.microbiota_pathogenic_bacteria_count
+        self.microbiota_good_bacteria_class = Simulation.model.microbiota_good_bacteria_count
+        self.microbiota_pathogenic_bacteria_class = Simulation.model.microbiota_pathogenic_bacteria_count
         self.microbiota_good_bacteria_class = counts["bacteria_good"]
         self.microbiota_pathogenic_bacteria_class = counts["bacteria_pathogenic"]
         self.SCFA = counts["SCFA"]
