@@ -88,7 +88,7 @@ class Log:
                 elif isinstance(agent, Neuron):
                     if agent.state == NeuronState.HEALTHY:
                         counts["neuron_healthy"] += 1
-                    elif agent.state == Simulation.params["neuron_state"]["damaged"]:
+                    elif agent.state == NeuronState.DAMAGED:
                         counts["neuron_damaged"] += 1
                 elif isinstance(agent, Microglia):
                     if agent.state == MicrogliaState.ACTIVE:

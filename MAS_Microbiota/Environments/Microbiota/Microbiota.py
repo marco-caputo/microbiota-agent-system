@@ -20,6 +20,7 @@ class Microbiota(GridEnvironment):
             SubstrateType.CARBOHYDRATE: 0,
             SubstrateType.SUGAR: 0
         }
+        self.bacteria_to_add = []
         self.good_bacteria_count = 0
         self.pathogenic_bacteria_count = 0
 
@@ -54,7 +55,7 @@ class Microbiota(GridEnvironment):
         self.remove_agents(removed_ids)
         self.add_substrates()
         self.make_agents_steps()
-
+        self.add_bacteria()
         resources_to_move = []
 
         for agent in self.context.agents():
@@ -166,3 +167,8 @@ class Microbiota(GridEnvironment):
             type = types[0].__class__(Simulation.model.rng.choice(types))
             agent = agent_class(Simulation.model.new_id(), Simulation.model.rank, type, point, self.NAME)
             self.context.add(agent)
+
+    def add_bacteria(self):
+        for bacterium in self.bacteria_to_add:
+            self.context.add(bacterium)
+        self.bacteria_to_add = []

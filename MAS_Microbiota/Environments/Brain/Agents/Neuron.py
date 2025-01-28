@@ -85,6 +85,7 @@ class Neuron(GridAgent):
         if precursor is not None:
             neurotrans = np.random.choice(precursor.precursor_type.associated_neurotransmitters())
             self.neurotrans_availability[neurotrans] += Simulation.params["precursor_boost"]
+            precursor.toRemove = True
 
         # Decreases the rate at which the neuron produces neurotransmitters
         for neurotransmitter in self.neurotrans_rate:

@@ -54,4 +54,4 @@ class Treatment(GridAgent):
             bacteria_class = Simulation.model.rng.choice(self.PROBIOTICS_BACTERIA)
             random_pt = Simulation.model.envs['microbiota'].grid.get_random_local_pt(Simulation.model.rng)
             bacterium_to_add = bacteria_class(Simulation.model.new_id(), Simulation.model.rank, random_pt, self.context)
-            Simulation.model.envs['microbiota'].context.add_agent(bacterium_to_add)
+            Simulation.model.envs['microbiota'].bacteria_to_add.append(bacterium_to_add)

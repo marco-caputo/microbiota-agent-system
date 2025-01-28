@@ -19,10 +19,10 @@ class Enterobacteriaceae(Bacterium):
         return []
 
     def produced_scfa(self) -> List[SCFAType]:
-        return []
+        return [SCFAType.ACETATE]
 
     def consumable_scfa(self) -> List[SCFAType]:
-        return self.produced_scfa() + [SCFAType.ACETATE]
+        return self.produced_scfa()
 
     def produced_precursors(self) -> List[PrecursorType]:
         return [PrecursorType.TRYPTOPHAN, PrecursorType.TYROSINE]

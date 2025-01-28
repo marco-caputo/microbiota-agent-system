@@ -16,10 +16,10 @@ enterobacteriaceae.count : 100          # (Pathogenic, Sugar        )  Initial c
 streptococcaceae.count : 100            # (Pathogenic, Sugar        )  Initial count of Streptococcaceae
 clostridiaceae.count : 100              # (Good,       Sugar        )  Initial count of Clostridiaceae
 lactobacillaceae.count : 100            # (Good,       Sugar        )  Initial count of Lactobacillaceae
-prevotellaceae.count : 100              # (Good,       Carb         )  Initial count of Prevotellaceae
-bifidobacteriaceae.count : 100          # (Good,       Carb         )  Initial count of Bifidobacteriaceae
-ruminococcaceae.count : 100             # (Good,       Carb-Fiber   )  Initial count of Ruminococcaceae
-lachnospiraceae.count : 100             # (Good,       Carb-Fiber   )  Initial count of Lachnospiraceae
+prevotellaceae.count : 0              # (Good,       Carb         )  Initial count of Prevotellaceae
+bifidobacteriaceae.count : 0          # (Good,       Carb         )  Initial count of Bifidobacteriaceae
+ruminococcaceae.count : 0             # (Good,       Carb-Fiber   )  Initial count of Ruminococcaceae
+lachnospiraceae.count : 0             # (Good,       Carb-Fiber   )  Initial count of Lachnospiraceae
 
 
 scfa_acetate.count : 0
@@ -53,8 +53,8 @@ tau_oligomer_brain.count : 0
 bacteria_initial_state : "HIGH"
 bacteria_energy_deltas: {
     "fission": -3,
-    "ferment": 3,
-    "consume": 2,
+    "ferment": 4,
+    "consume": 3,
     "bacteriocins": -3,
     "move": -1,
     "idle": -1
@@ -65,18 +65,18 @@ bacteria_energy_deltas: {
 substrate_max_age : 10
 diet_substrates : {
     "balanced": {
-        "fiber": 0,
-        "carbohydrate": 80,
-        "sugar": 0
+        "fiber": 50,
+        "carbohydrate": 50,
+        "sugar": 120
     },
     "external_input_influence": {
         "fiber": 0,
-        "carbohydrate": -1,
+        "carbohydrate": 0,
         "sugar": 0
     },
     "treatment_influence": {
         "fiber": 0,
-        "carbohydrate": 2,
+        "carbohydrate": 0,
         "sugar": 0
     }
 }
@@ -142,8 +142,9 @@ agents_display: {
         "Cytokine": True,
         "Protein": True,
         "Neurotransmitter": True,
-        "Precursor": True,
+        "Precursor": False,
         "Oligomer": True,
+        "CleavedProtein": True,
     },
     "microbiota": {
         "Bacterium": True,
