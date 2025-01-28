@@ -142,16 +142,39 @@ agents_display: {
         "Protein": True,
         "Neurotransmitter": True,
         "Precursor": True,
-        "Oligermer": True,
+        "Oligomer": True,
     },
     "microbiota": {
         "Bacterium": True,
         "Substrate": False,
-        "Protein": False,
-        "SCFA": False,
-        "Neurotransmitter": False,
-        "ExternalInput": False,
-        "Treatment": False,
-        "Precursor": False
+        "Protein": True,
+        "SCFA": True,
+        "Neurotransmitter": True,
+        "ExternalInput": True,
+        "Treatment": True,
+        "Precursor": True
     }
+}
+
+
+protein_name : {
+    tau: "tau",
+    alpha_syn: "alpha_syn"
+}
+aep_state : {
+    active: "active",
+    hyperactive: "hyperactive"
+}
+microglia_state : {
+    active: "active",
+    resting: "resting"
+}
+neuron_state : {
+    "healthy": "healthy",
+    "damaged": "damaged",
+    "dead": "dead"
+}
+cyto_state : {
+    pro_inflammatory: "pro_inflammatory",
+    non_inflammatory: "non_inflammatory"
 }

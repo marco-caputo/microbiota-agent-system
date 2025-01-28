@@ -42,6 +42,7 @@ class Log:
     # new variables
     neurotransmitter: int = 0
 
+
     # Function to log the counts of the agents
     def log_counts(self):
         tick = Simulation.model.runner.schedule.tick
@@ -104,8 +105,8 @@ class Log:
                         counts["aep_active"] += 1
                     else:
                         counts["aep_hyperactive"] += 1
-                elif (type(agent) == Neurotransmitter): ### new lines
-                    if context.NAME == "brain" and not agent.toRemove:
+                elif isinstance(agent, Neurotransmitter): ### new lines
+                    #if context.NAME == "brain" and not agent.toRemove:
                         counts["neurotransmitter"] += 1
                 elif isinstance(agent, Bacterium):
                     if agent.causes_inflammation():

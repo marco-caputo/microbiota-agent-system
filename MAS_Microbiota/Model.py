@@ -18,6 +18,7 @@ from MAS_Microbiota.Environments.Microbiota.Agents import *
 from MAS_Microbiota.Environments.Gut.Agents import *
 from MAS_Microbiota.Environments.Brain.Agents import *
 from MAS_Microbiota.AgentRestorer import restore_agent
+from MAS_Microbiota.Log import Log
 
 
 class Model():
@@ -30,7 +31,7 @@ class Model():
 
         self.init_environments(comm)
         self.init_gui()
-        #self.init_log() #TODO: temporaneo
+        self.init_log() #TODO: temporaneo
         self.init_schedule(comm)
         self.init_rng()
 
@@ -104,7 +105,7 @@ class Model():
         self.runner.schedule_repeating_event(1, 6, self.teleport_resources_step)
         self.runner.schedule_repeating_event(1, 1, self.envs[Brain.NAME].step, priority_type=0)
         self.runner.schedule_repeating_event(1, 1, self.screen.pygame_update, priority_type=1)
-        #self.runner.schedule_repeating_event(1, 1, self.counts.log_counts, priority_type=1) #TODO: temporaneo
+        self.runner.schedule_repeating_event(1, 1, self.counts.log_counts, priority_type=1) #TODO: temporaneo
         self.runner.schedule_stop(Simulation.params['stop.at'])
         self.runner.schedule_end_event(self.at_end)
 
