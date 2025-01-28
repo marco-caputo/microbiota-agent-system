@@ -107,7 +107,7 @@ class Log:
                         counts["aep_hyperactive"] += 1
                 elif isinstance(agent, Neurotransmitter): ### new lines
                     #if context.NAME == "brain" and not agent.toRemove:
-                        counts["neurotransmitter"] += 1
+                    counts["neurotransmitter"] += 1
                 elif isinstance(agent, Bacterium):
                     if agent.causes_inflammation():
                         counts["bacteria_pathogenic"] += 1
@@ -132,6 +132,7 @@ class Log:
         self.tau_oligomer_brain = counts["tau_oligomer_brain"]
         self.resting_microglia = counts["microglia_resting"]
         self.active_microglia = counts["microglia_active"]
+        self.neurotransmitter = counts["neurotransmitter"]
 
         # gut
         self.aep_active = counts["aep_active"]
