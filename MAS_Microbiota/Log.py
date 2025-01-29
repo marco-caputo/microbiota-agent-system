@@ -40,7 +40,9 @@ class Log:
     cytokine_pro_inflammatory: int = 0
     cytokine_non_inflammatory: int = 0
     # new variables
-    neurotransmitter: int = 0
+    dopamine: int = 0
+    serotonin: int = 0
+    norepinephrine: int = 0
 
 
     # Function to log the counts of the agents
@@ -69,7 +71,10 @@ class Log:
             "precursor": 0,
             "neurotransmitter": 0,
             "bacteria_good": 0,
-            "bacteria_pathogenic": 0
+            "bacteria_pathogenic": 0,
+            "dopamine": 0,
+            "serotonin": 0,
+            "norepinephrine": 0
         }
 
         for env_name in Simulation.model.envs:
@@ -106,8 +111,12 @@ class Log:
                     else:
                         counts["aep_hyperactive"] += 1
                 elif isinstance(agent, Neurotransmitter): ### new lines
-                    #if context.NAME == "brain" and not agent.toRemove:
-                    counts["neurotransmitter"] += 1
+                    if (agent.neurotrans_type == NeurotransmitterType.DOPAMINE):
+                        counts["dopamine"] += 1
+                    elif (agent.neurotrans_type == NeurotransmitterType.SEROTONIN):
+                        counts["serotonin"] += 1
+                    else:
+                        counts["norepinephrine"] += 1
                 elif isinstance(agent, Bacterium):
                     if agent.causes_inflammation():
                         counts["bacteria_pathogenic"] += 1
@@ -132,7 +141,9 @@ class Log:
         self.tau_oligomer_brain = counts["tau_oligomer_brain"]
         self.resting_microglia = counts["microglia_resting"]
         self.active_microglia = counts["microglia_active"]
-        self.neurotransmitter = counts["neurotransmitter"]
+        self.serotonin = counts["serotonin"]
+        self.dopamine = counts["dopamine"]
+        self.norepinephrine = counts["norepinephrine"]
 
         # gut
         self.aep_active = counts["aep_active"]

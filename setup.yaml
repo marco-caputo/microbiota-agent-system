@@ -1,5 +1,5 @@
 # General
-stop.at : 500
+stop.at : 50
 gut_log_file: 'output/gut_log.csv'
 brain_log_file: 'output/brain_log.csv'
 log_file: 'output/log_file.csv'
@@ -143,8 +143,8 @@ agents_display: {
         "Protein": True,
         "Neurotransmitter": True,
         "Precursor": False,
-        "Oligomer": True,
-        "CleavedProtein": True,
+        "Oligomer": False,
+        "CleavedProtein": False,
     },
     "microbiota": {
         "Bacterium": True,
