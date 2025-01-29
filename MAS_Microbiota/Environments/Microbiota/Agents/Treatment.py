@@ -5,7 +5,7 @@ import numpy as np
 
 from MAS_Microbiota import Simulation
 from MAS_Microbiota.Environments import GridAgent
-from MAS_Microbiota.Environments.Microbiota.Agents import SubstrateType, Bifidobacteriaceae
+from MAS_Microbiota.Environments.Microbiota.Agents import SubstrateType, Bifidobacteriaceae, Lachnospiraceae
 
 
 class TreatmentType(IntEnum):
@@ -16,7 +16,7 @@ class Treatment(GridAgent):
 
     TYPE = 5
 
-    PROBIOTICS_BACTERIA = [Bifidobacteriaceae]
+    PROBIOTICS_BACTERIA = [Bifidobacteriaceae, Lachnospiraceae]
 
     def __init__(self, local_id: int, rank: int, treatment_type: TreatmentType, pt: dpt, context):
         super().__init__(local_id=local_id, type=Treatment.TYPE, rank=rank, pt=pt, context=context)

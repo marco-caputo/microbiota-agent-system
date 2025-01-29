@@ -65,7 +65,7 @@ class GUI:
         ]
 
         self.color_dict = {}
-        for label in ['Microglia', 'Neuron', 'Cytokine', 'AEP', 'Neurotransmitter']:
+        for label in ['Microglia', 'Neuron', 'Cytokine', 'AEP', 'Neurotransmitter', 'Substrate']:
             self.color_dict[label] = {}
         for color, label in self.legend:
             if label == 'Serotonin': self.color_dict['Neurotransmitter'][NeurotransmitterType.SEROTONIN] = color
@@ -82,6 +82,9 @@ class GUI:
             elif label == 'Dead Neuron': self.color_dict['Neuron'][NeuronState.DEAD] = color
             elif label == 'Pro-inflammatory Cytokine': self.color_dict['Cytokine'][CytokineState.PRO_INFLAMMATORY] = color
             elif label == 'Anti-inflammatory Cytokine': self.color_dict['Cytokine'][CytokineState.NON_INFLAMMATORY] = color
+            elif label == 'Fiber': self.color_dict['Substrate'][SubstrateType.FIBER] = color
+            elif label == 'Carbohydrate': self.color_dict['Substrate'][SubstrateType.CARBOHYDRATE] = color
+            elif label == 'Sugar': self.color_dict['Substrate'][SubstrateType.SUGAR] = color
             else: self.color_dict[label] = color
 
 
@@ -162,8 +165,8 @@ class GUI:
         radius = 5
         
         for agent in agents:
-            if ((isinstance(agent, Bacterium) and Simulation.params['agents_display'][agent.context]["Bacterium"]) or 
-                    Simulation.params['agents_display'][agent.context][agent.__class__.__name__]):
+            if ((isinstance(agent, Bacterium) and Simulation.params['agents_display'][agent.context]["Bacterium"]) or
+                (not isinstance(agent, Bacterium) and Simulation.params['agents_display'][agent.context][agent.__class__.__name__])):
                 x_center = area[0] + (agent.pt.x / self.grid_width) * area[2]
                 y_center = area[1] + (agent.pt.y / self.grid_height) * area[3]
 
@@ -180,6 +183,8 @@ class GUI:
         if isinstance(self.color_dict[class_name], dict):
             if isinstance(agent, Neurotransmitter):
                 return self.color_dict[class_name][agent.neurotrans_type]
+            elif isinstance(agent, Substrate):
+                return self.color_dict[class_name][agent.sub_type]
             else:
                 return self.color_dict[class_name][agent.state]
         else:

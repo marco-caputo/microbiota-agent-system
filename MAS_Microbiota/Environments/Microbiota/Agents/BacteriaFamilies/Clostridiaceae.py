@@ -34,4 +34,4 @@ class Clostridiaceae(Bacterium):
         return False
 
     def causes_inflammation(self) -> bool:
-        return False
+        return True
