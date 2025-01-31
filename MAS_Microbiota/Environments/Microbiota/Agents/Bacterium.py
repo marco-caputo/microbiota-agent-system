@@ -88,7 +88,7 @@ class Bacterium(GridAgent):
         for ngh_coord in nghs_coords:
             ngh_array = Simulation.model.envs['microbiota'].grid.get_agents(dpt(ngh_coord[0], ngh_coord[1]))
             for ngh in ngh_array:
-                if type(ngh) == Bacterium and not ngh.toRemove:
+                if isinstance(ngh, Bacterium) and not ngh.toRemove:
                     result.append(ngh)
         return result
 
@@ -157,7 +157,7 @@ class Bacterium(GridAgent):
             self.move()
 
         elif (self.can_release_bacteriocins() and
-              self.energy_level >= EnergyLevel.HIGH and len(percieved_resources) == 0):
+              self.energy_level >= EnergyLevel.HIGH and len(percieved_resources) == 0 and len(percieved_bacteria) >= 8):
             self.release_bacteriocins(percieved_bacteria)
 
         else:

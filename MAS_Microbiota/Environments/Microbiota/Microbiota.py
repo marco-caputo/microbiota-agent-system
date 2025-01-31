@@ -74,7 +74,7 @@ class Microbiota(GridEnvironment):
 
     def add_substrates(self):
         for type in list(SubstrateType):
-            self.substrates_to_add[type] += Simulation.params["diet_substrates"]["balanced"][type.name.lower()]
+            self.substrates_to_add[type] += Simulation.params["diet_substrates"]["intake"][type.name.lower()]
 
         for substrate_type in self.substrates_to_add:
             for _ in range(self.substrates_to_add[substrate_type]):

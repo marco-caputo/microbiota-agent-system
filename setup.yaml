@@ -12,45 +12,46 @@ world.height: 100
 # Microbiota
 microbiota_diversity_threshold : 100
 
-enterobacteriaceae.count : 100          # (Pathogenic, Sugar        )  Initial count of Enterobacteriaceae
-streptococcaceae.count : 100            # (Pathogenic, Sugar        )  Initial count of Streptococcaceae
-clostridiaceae.count : 100              # (Good,       Sugar        )  Initial count of Clostridiaceae
-lactobacillaceae.count : 100            # (Good,       Sugar        )  Initial count of Lactobacillaceae
+enterobacteriaceae.count : 100        # (Pathogenic, Sugar        )  Initial count of Enterobacteriaceae
+streptococcaceae.count : 100          # (Pathogenic, Sugar        )  Initial count of Streptococcaceae
+clostridiaceae.count : 100            # (Pathogenic, Sugar        )  Initial count of Clostridiaceae
+lactobacillaceae.count : 100          # (Pathogenic, Sugar        )  Initial count of Lactobacillaceae
 prevotellaceae.count : 0              # (Good,       Carb         )  Initial count of Prevotellaceae
 bifidobacteriaceae.count : 0          # (Good,       Carb         )  Initial count of Bifidobacteriaceae
 ruminococcaceae.count : 0             # (Good,       Carb-Fiber   )  Initial count of Ruminococcaceae
 lachnospiraceae.count : 0             # (Good,       Carb-Fiber   )  Initial count of Lachnospiraceae
 
 
-scfa_acetate.count : 0
-scfa_propionate.count : 0
-scfa_butyrate.count : 0
+scfa_acetate.count : 0                # Initial count of acetate
+scfa_propionate.count : 0             # Initial count of propionate
+scfa_butyrate.count : 0               # Initial count of butyrate
 
-substrate_fiber.count : 10
-substrate_carbohydrate.count : 10
-substrate_sugar.count : 10
+substrate_fiber.count : 10            # Initial count of fiber
+substrate_carbohydrate.count : 10     # Initial count of carbohydrate
+substrate_sugar.count : 10            # Initial count of sugar
 
 # Gut
-aep_enzyme.count : 50
-tau_proteins.count : 300
-alpha_syn_proteins.count : 300
-tau_oligomers_gut.count : 0
-alpha_syn_oligomers_gut.count : 0
+aep_enzyme.count : 50                 # Initial count of AEP enzyme
+tau_proteins.count : 300              # Initial count of tau proteins
+alpha_syn_proteins.count : 300        # Initial count of alpha-synuclein proteins
+tau_oligomers_gut.count : 0           # Initial count of tau oligomers
+alpha_syn_oligomers_gut.count : 0     # Initial count of alpha-synuclein oligomers
 
 # Brain
-active_microglia.count: 0
-resting_microglia.count: 50
-neuron_healthy.count: 300
-neuron_damaged.count: 0
-neuron_dead.count: 0
-cytokine.count : 0
-alpha_syn_cleaved_brain.count : 0
-alpha_syn_oligomer_brain.count : 0
-tau_cleaved_brain.count : 0
-tau_oligomer_brain.count : 0
+active_microglia.count: 0             # Initial count of active microglia
+resting_microglia.count: 50           # Initial count of resting microglia
+neuron_healthy.count: 300             # Initial count of healthy neurons
+neuron_damaged.count: 0               # Initial count of damaged neurons
+neuron_dead.count: 0                  # Initial count of dead neurons
+cytokine.count : 0                    # Initial count of cytokines
+alpha_syn_cleaved_brain.count : 0     # Initial count of cleaved alpha-synuclein
+alpha_syn_oligomer_brain.count : 0    # Initial count of alpha-synuclein oligomers
+tau_cleaved_brain.count : 0           # Initial count of cleaved tau
+tau_oligomer_brain.count : 0          # Initial count of tau oligomers
 
 # Bacteria
-bacteria_initial_state : "HIGH"
+bacteria_initial_state : "HIGH"       # Initial energy state of bacteria
+bacteriocins_threshold : 8            # Number of neighbors required to produce bacteriocins
 bacteria_energy_deltas: {
     "fission": -3,
     "ferment": 4,
@@ -62,19 +63,19 @@ bacteria_energy_deltas: {
 
 
 # Diet
-substrate_max_age : 10
+substrate_max_age : 10                # Number of steps before substrate is removed
 diet_substrates : {
-    "balanced": {
-        "fiber": 50,
-        "carbohydrate": 50,
-        "sugar": 120
+    "intake": {
+        "fiber": 50,                  # Number of fibers introduced at each step
+        "carbohydrate": 50,           # Number of carbohydrates introduced at each step
+        "sugar": 120                  # Number of sugars introduced at each step
     },
-    "external_input_influence": {
+    "external_input_influence": {     # Influence of a single external input agent on diet per step
         "fiber": 0,
         "carbohydrate": 0,
         "sugar": 0
     },
-    "treatment_influence": {
+    "treatment_influence": {          # Influence of a single treatment agent on diet per step
         "fiber": 0,
         "carbohydrate": 0,
         "sugar": 0
@@ -83,19 +84,19 @@ diet_substrates : {
 
 # Epithelial Barrier
 epithelial_barrier: {
-    initial_impermeability: 80,
+    initial_impermeability: 80,         # Initial impermeability of the epithelial barrier
     min_impermeability: 30,             # Minimum impermeability that impedes oligomer passage
-    permeability_threshold: 25,
-    permeability_threshold_stop: 20,
-    permeability_threshold_start: 30
+    permeability_threshold: 25,         # Threshold for oligomer passage
+    permeability_threshold_start: 35,   #?
+    permeability_threshold_stop: 10,    #?
 }
 
 # Blood Brain Barrier
 blood_brain_barrier: {
-    initial_impermeability: 50,
-    minimum_impermeability: 1,
-    maximum_impermeability: 99,
-    scfa_permeability_influence: 1
+    initial_impermeability: 50,         # Initial impermeability of the BBB
+    minimum_impermeability: 1,          # Minimum impermeability of the BBB
+    maximum_impermeability: 99,         # Maximum impermeability of the BBB
+    scfa_permeability_influence: 1      # Influence of SCFA on BBB permeability
 }
 
 #Neurotransmitters
@@ -123,7 +124,7 @@ treatment_probiotics.count : 1          # Number of probiotic input agents at st
 treatment_probiotics_factor : 1         # Percentage of beneficial bacteria introduced by probiotic treatment
 
 # GUI
-agents_display: {
+agents_display: {                       # Whether agents of a type are displayed in environments in the GUI
     "gut": {
         "Bacterium": True,
         "Substrate": True,

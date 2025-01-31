@@ -9,7 +9,6 @@ from repast4py.space import DiscretePoint as dpt
 
 from MAS_Microbiota.GUI import GUI
 from MAS_Microbiota.Utils import *
-#from MAS_Microbiota.Log import Log #TODO: temporaneo
 from MAS_Microbiota.Environments.Gut.Gut import Gut
 from MAS_Microbiota.Environments.Brain.Brain import Brain
 from MAS_Microbiota.Environments.Microbiota.Microbiota import Microbiota
@@ -31,7 +30,7 @@ class Model():
 
         self.init_environments(comm)
         self.init_gui()
-        self.init_log() #TODO: temporaneo
+        self.init_log()
         self.init_schedule(comm)
         self.init_rng()
 
@@ -43,7 +42,7 @@ class Model():
         self.added_agents_id = 0
         self.distribute_all_agents(Gut.initial_agents(), Gut.NAME)
         self.distribute_all_agents(Brain.initial_agents(), Brain.NAME)
-        self.distribute_all_agents(Microbiota.initial_agents(), Microbiota.NAME) #TODO: magari distribuiamo abtteri della stessa famiglia vicini
+        self.distribute_all_agents(Microbiota.initial_agents(), Microbiota.NAME)
 
         # Synchronize the contexts
         for _, env in self.envs.items(): env.context.synchronize(restore_agent)
@@ -134,10 +133,10 @@ class Model():
     def init_gut_brain_interface_params(self):
         self.epithelial_barrier_impermeability = \
             Simulation.params["epithelial_barrier"]["initial_impermeability"]
-        self.epithelial_barrier_permeability_threshold_stop = \
-            Simulation.params["epithelial_barrier"]["permeability_threshold_stop"]
         self.epithelial_barrier_permeability_threshold_start = \
             Simulation.params["epithelial_barrier"]["permeability_threshold_start"]
+        self.epithelial_barrier_permeability_threshold_stop = \
+            Simulation.params["epithelial_barrier"]["permeability_threshold_stop"]
 
     def init_brain_params(self):
         """
