@@ -63,7 +63,7 @@ class GutBrainInterface:
         if len(neurons) > 0:
             original_env_name = neurotrans.context
             neuron = Simulation.model.rng.choice(neurons)
-            neuron.neurotrans_availability[neurotrans.neurotrans_type] += Simulation.params['neurotrans_rate_increase']
+            neuron.neurotrans_rate[neurotrans.neurotrans_type] += Simulation.params['neurotrans_rate_increase']
             neurotrans.toRemove = False
             neurotrans.toMove = False
             self.envs[original_env_name].remove(neurotrans)

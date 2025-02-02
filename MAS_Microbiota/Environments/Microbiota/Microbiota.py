@@ -44,10 +44,12 @@ class Microbiota(GridEnvironment):
             ('substrate_sugar.count', Substrate, SubstrateType.SUGAR),
             ('external_input_diet.count', ExternalInput, ExternalInputType.DIET),
             ('external_input_antibiotics.count', ExternalInput, ExternalInputType.ANTIBIOTICS),
-            ('external_input_stress.count', ExternalInput, ExternalInputType.STRESS),
+            ('external_input_stress.count', ExternalInput, ExternalInputType.STRESS)
+        ] + \
+        ([
             ('treatment_diet.count', Treatment, TreatmentType.DIET),
-            ('treatment_probiotics.count', Treatment, TreatmentType.PROBIOTICS),
-        ]
+            ('treatment_probiotics.count', Treatment, TreatmentType.PROBIOTICS)
+        ] if Simulation.params["treatment_enabled"] else [])
 
     def step(self):
         removed_ids = set()

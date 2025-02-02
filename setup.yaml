@@ -1,5 +1,5 @@
 # General
-stop.at : 50
+stop.at : 500
 gut_log_file: 'output/gut_log.csv'
 brain_log_file: 'output/brain_log.csv'
 log_file: 'output/log_file.csv'
@@ -16,19 +16,19 @@ enterobacteriaceae.count : 100        # (Pathogenic, Sugar        )  Initial cou
 streptococcaceae.count : 100          # (Pathogenic, Sugar        )  Initial count of Streptococcaceae
 clostridiaceae.count : 100            # (Pathogenic, Sugar        )  Initial count of Clostridiaceae
 lactobacillaceae.count : 100          # (Pathogenic, Sugar        )  Initial count of Lactobacillaceae
-prevotellaceae.count : 0              # (Good,       Carb         )  Initial count of Prevotellaceae
-bifidobacteriaceae.count : 0          # (Good,       Carb         )  Initial count of Bifidobacteriaceae
-ruminococcaceae.count : 0             # (Good,       Carb-Fiber   )  Initial count of Ruminococcaceae
-lachnospiraceae.count : 0             # (Good,       Carb-Fiber   )  Initial count of Lachnospiraceae
+prevotellaceae.count : 100            # (Good,       Carb         )  Initial count of Prevotellaceae
+bifidobacteriaceae.count : 100        # (Good,       Carb         )  Initial count of Bifidobacteriaceae
+ruminococcaceae.count : 100           # (Good,       Carb-Fiber   )  Initial count of Ruminococcaceae
+lachnospiraceae.count : 100           # (Good,       Carb-Fiber   )  Initial count of Lachnospiraceae
 
 
 scfa_acetate.count : 0                # Initial count of acetate
 scfa_propionate.count : 0             # Initial count of propionate
 scfa_butyrate.count : 0               # Initial count of butyrate
 
-substrate_fiber.count : 10            # Initial count of fiber
-substrate_carbohydrate.count : 10     # Initial count of carbohydrate
-substrate_sugar.count : 10            # Initial count of sugar
+substrate_fiber.count : 100            # Initial count of fiber
+substrate_carbohydrate.count : 100     # Initial count of carbohydrate
+substrate_sugar.count : 100            # Initial count of sugar
 
 # Gut
 aep_enzyme.count : 50                 # Initial count of AEP enzyme
@@ -66,9 +66,9 @@ bacteria_energy_deltas: {
 substrate_max_age : 10                # Number of steps before substrate is removed
 diet_substrates : {
     "intake": {
-        "fiber": 50,                  # Number of fibers introduced at each step
-        "carbohydrate": 50,           # Number of carbohydrates introduced at each step
-        "sugar": 120                  # Number of sugars introduced at each step
+        "fiber": 100,                 # Number of fibers introduced at each step
+        "carbohydrate": 100,          # Number of carbohydrates introduced at each step
+        "sugar": 100                  # Number of sugars introduced at each step
     },
     "external_input_influence": {     # Influence of a single external input agent on diet per step
         "fiber": 0,
@@ -87,8 +87,8 @@ epithelial_barrier: {
     initial_impermeability: 80,         # Initial impermeability of the epithelial barrier
     min_impermeability: 30,             # Minimum impermeability that impedes oligomer passage
     permeability_threshold: 25,         # Threshold for oligomer passage
-    permeability_threshold_start: 35,   #?
-    permeability_threshold_stop: 10,    #?
+    permeability_threshold_start: 30,   # Threshold for treatment start
+    permeability_threshold_stop: 20,    # Threshold for external input stop
 }
 
 # Blood Brain Barrier
@@ -111,14 +111,14 @@ neurotrans_decrease : {                 # Decrease in neurotransmitter availabil
 }
 
 # External input
-external_input_diet.count : 1           # Number of diet input agents at start of simulation
+external_input_diet.count : 0           # Number of diet input agents at start of simulation
 external_input_antibiotics.count : 0    # Number of antibiotics input agents at start of simulation
-external_input_stress.count : 1         # Number of stress input agents at start of simulation
+external_input_stress.count : 0         # Number of stress input agents at start of simulation
 external_input_antibiotics_factor : 3   # Percentage of bacteria killed by antibiotics
 external_input_stress_factor : 1        # Percentage of pathogenic bacteria boosted by stress
 
 # Treatment
-treatment : True                        # Whether treatment is enabled
+treatment_enabled : False               # Whether treatment is enabled
 treatment_diet.count : 1                # Number of diet input agents at start of simulation
 treatment_probiotics.count : 1          # Number of probiotic input agents at start of simulation
 treatment_probiotics_factor : 1         # Percentage of beneficial bacteria introduced by probiotic treatment

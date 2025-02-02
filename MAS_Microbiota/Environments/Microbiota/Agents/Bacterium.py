@@ -156,8 +156,8 @@ class Bacterium(GridAgent):
                 and len(Simulation.model.envs['microbiota'].find_bact_free_nghs(self.pt)) != 0):
             self.move()
 
-        elif (self.can_release_bacteriocins() and
-              self.energy_level >= EnergyLevel.HIGH and len(percieved_resources) == 0 and len(percieved_bacteria) >= 8):
+        elif (self.can_release_bacteriocins() and self.energy_level >= EnergyLevel.HIGH and
+              len(percieved_resources) == 0 and len(percieved_bacteria) >= Simulation.params["bacteriocins_threshold"]):
             self.release_bacteriocins(percieved_bacteria)
 
         else:
